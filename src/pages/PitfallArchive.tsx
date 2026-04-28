@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { pitfalls } from '../data/places'
+import { useTripStore } from '../store/tripStore'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
 
@@ -13,6 +13,7 @@ const riskColors: Record<string, string> = {
 }
 
 export default function PitfallArchive() {
+  const pitfalls = useTripStore((s) => s.pitfalls)
   const [tag, setTag] = useState<string | null>(null)
 
   const filters = [

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import HomePage from './pages/HomePage'
@@ -9,8 +10,15 @@ import TripPlan from './pages/TripPlan'
 import PitfallArchive from './pages/PitfallArchive'
 import AppSettings from './pages/AppSettings'
 import AIBot from './components/AIBot'
+import { useTripStore } from './store/tripStore'
 
 export default function App() {
+  const loadData = useTripStore((s) => s.loadData)
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />

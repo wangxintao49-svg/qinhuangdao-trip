@@ -1,10 +1,9 @@
 import { useTripStore } from '../store/tripStore'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
-import { spots, pitfalls } from '../data/places'
 
 export default function AppSettings() {
-  const { settings, patchSettings } = useTripStore()
+  const { settings, patchSettings, spots, pitfalls } = useTripStore()
 
   const toggles = [
     { key: 'showPitfalls' as const, label: '显示避坑点', desc: '在地图和列表中显示避坑档案' },

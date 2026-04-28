@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { spots } from '../data/places'
 import { useTripStore } from '../store/tripStore'
 import { suggestPlaces } from '../services/api'
 import { pageIntros } from '../data/pageIntros'
@@ -13,7 +12,7 @@ export default function PlaceGallery() {
   const [q, setQ] = useState('')
   const [suggestions, setSuggestions] = useState<Array<{ title: string; address: string }>>([])
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const { toggleWish, wishlist } = useTripStore()
+  const { toggleWish, wishlist, spots } = useTripStore()
 
   const list = spots
     .filter((s) => cat === 'all' || s.category === cat)

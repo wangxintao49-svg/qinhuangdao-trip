@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
-import { spots } from '../data/places'
 import { useTripStore } from '../store/tripStore'
 import { loadTMap, getUserLocation, watchUserLocation } from '../services/api'
 import { haversineDist, estDriveTime, estTaxiFare, decodeDirectionPolyline, generateCurvedPath } from '../utils/geo'
@@ -42,7 +41,7 @@ interface TransitStep {
 
 export default function RoutePlanner() {
   const { state } = useLocation()
-  const { mode, setMode } = useTripStore()
+  const { mode, setMode, spots } = useTripStore()
   const [from, setFrom] = useState(state?.from ?? '')
   const [to, setTo] = useState('')
   const [ready, setReady] = useState(false)

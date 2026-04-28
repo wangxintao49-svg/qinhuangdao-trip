@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { spots } from '../data/places'
 import { useTripStore } from '../store/tripStore'
 import { loadTMap, suggestPlaces, searchNearby, getUserLocation, watchUserLocation } from '../services/api'
 import { pageIntros } from '../data/pageIntros'

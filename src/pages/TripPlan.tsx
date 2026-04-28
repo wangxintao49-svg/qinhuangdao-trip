@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
-import { spots } from '../data/places'
 import { useTripStore } from '../store/tripStore'
 import { haversineDist, estDriveTime, estTaxiFare, estWalkTime, estRideTime, estTransitTime, decodeDirectionPolyline, generateCurvedPath } from '../utils/geo'
 import { loadTMap, getUserLocation, watchUserLocation } from '../services/api'
@@ -42,9 +41,9 @@ interface SegmentRoute {
 }
 
 // 最近邻 TSP 优化
-function optimizeRoute(ids: string[]): string[] {
+function optimizeRoute(ids: string[], allSpots: any[]): string[] {
   if (ids.length <= 2) return ids
-  const spotsMap = new Map(spots.map((s) => [s.id, s]))
+  const spotsMap = new Map(allSpots.map((s: any) => [s.id, s]))
   const unvisited = new Set(ids.slice(1))
   const result = [ids[0]]
   let current = spotsMap.get(ids[0])!
@@ -65,7 +64,7 @@ function optimizeRoute(ids: string[]): string[] {
 }
 
 export default function TripPlan() {
-  const { wishlist, setWishlist, removeWish, clearWish } = useTripStore()
+  const { wishlist, setWishlist, removeWish, clearWish, spots } = useTripStore()
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [showMap, setShowMap] = useState(false)
   const [mapReady, setMapReady] = useState(false)
@@ -118,7 +117,7 @@ export default function TripPlan() {
 
   // 智能优化
   const handleOptimize = () => {
-    const optimized = optimizeRoute(order)
+    const optimized = optimizeRoute(order, spots)
     setOrder(optimized)
     setWishlist(optimized)
   }

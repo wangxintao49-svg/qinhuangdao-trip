@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { chatDeepSeek } from '../services/api'
-import { pageIntros } from '../data/pageIntros'
-import PageIntro from '../components/PageIntro'
-import { spots } from '../data/places'
+import { useTripStore } from '../store/tripStore'
 import type { ChatMessage } from '../types'
 
 const quick = ['推荐半日路线', '拍好看的照片去哪', '下雨怎么办', '我赶火车了']
 
 export default function AIChat() {
+  const spots = useTripStore((s) => s.spots)
   const [msgs, setMsgs] = useState<ChatMessage[]>([
     { role: 'ai', text: '👋 你好！我是你的专属秦皇岛旅行规划师。\n\n告诉我你的需求——\n- "帮我规划半天路线"\n- "推荐吃饭的地方"\n- "下雨天能去哪"\n- 或者直接问我任何问题！' },
   ])

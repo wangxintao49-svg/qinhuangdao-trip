@@ -87,17 +87,27 @@ export const useTripStore = create<TripStore>((set, get) => ({
   setMode: (m) => set({ mode: m }),
   patchSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
 
-  // 从 Supabase 加载数据
+  // 从 Supabase 加载数据（Supabase 无数据/缺字段时回退本地数据）
   loadData: async () => {
     try {
-      const [spots, pitfalls, wishlist] = await Promise.all([
+      const [supabaseSpots, supabasePitfalls, wishlist] = await Promise.all([
         fetchSpots(),
         fetchPitfalls(),
         fetchWishlist(getSessionId()),
       ])
-      set({ spots, pitfalls, wishlist, dataLoaded: true })
+      set({
+        spots: supabaseSpots.length > 0
+          ? supabaseSpots.map((s: Spot) => {
+              const fb = fallbackSpots.find((f) => f.id === s.id)
+              if (!fb) return s
+              return { ...fb, ...s, imageUrl: s.imageUrl || fb.imageUrl || '', intro: s.intro || fb.intro || '', recommendation: s.recommendation || fb.recommendation || '', caution: s.caution || fb.caution || '', ratingText: s.ratingText || fb.ratingText || '', keywords: s.keywords?.length ? s.keywords : (fb.keywords ?? []) }
+            })
+          : fallbackSpots,
+        pitfalls: supabasePitfalls.length > 0 ? supabasePitfalls : fallbackPitfalls,
+        wishlist,
+        dataLoaded: true,
+      })
     } catch {
-      // 失败则继续使用静态 fallback 数据
       set({ dataLoaded: true })
     }
   },

@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { margin: 0; min-height: 100vh; }
+
+@layer components {
+  .card {
+    @apply bg-white/75 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg;
+  }
+  .btn {
+    @apply px-6 py-3 rounded-xl font-semibold transition-all active:scale-[0.97];
+  }
+  .btn-solid {
+    @apply btn bg-gradient-to-r from-ocean-500 to-ocean-700 text-white shadow-md hover:shadow-lg;
+  }
+  .btn-outline {
+    @apply btn bg-white text-ocean-700 border-2 border-ocean-200 hover:bg-ocean-50;
+  }
+  .chip {
+    @apply px-3 py-1 rounded-full text-xs font-medium;
+  }
+  .chip-blue { @apply chip bg-ocean-100 text-ocean-700; }
+  .chip-green { @apply chip bg-emerald-100 text-emerald-700; }
+  .chip-yellow { @apply chip bg-yellow-100 text-yellow-700; }
+  .chip-red { @apply chip bg-red-100 text-red-700; }
+}

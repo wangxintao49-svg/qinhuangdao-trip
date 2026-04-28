@@ -1,0 +1,17 @@
+{
+  "rewrites": [
+    {
+      "source": "/tencent-api/:path*",
+      "destination": "https://apis.map.qq.com/:path*"
+    },
+    {
+      "source": "/baidu-auth/:path*",
+      "destination": "https://aip.baidubce.com/:path*"
+    },
+    {
+      "source": "/baidu-tts/:path*",
+      "destination": "https://tsn.baidu.com/:path*"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

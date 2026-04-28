@@ -37,7 +37,26 @@ declare namespace TMap {
     interface DirectionRoute {
       distance: number   // 米
       duration: number   // 秒
-      polyline: DirectionWayPoint[]
+      polyline: number[]
+      price?: number     // 分（公交/地铁票价）
+      steps?: Array<{
+        mode: string
+        distance: number
+        duration: number
+        polyline: number[]
+        direction?: string
+        steps?: Array<{ instruction: string; distance: number }>
+        lines?: Array<{
+          title: string
+          station_count: number
+          distance: number
+          duration: number
+          polyline: number[]
+          geton?: { title: string }
+          getoff?: { title: string }
+          stations?: Array<{ title: string }>
+        }>
+      }>
     }
     interface DirectionResult {
       status: number

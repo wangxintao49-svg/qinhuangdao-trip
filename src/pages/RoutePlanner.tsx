@@ -54,7 +54,7 @@ export default function RoutePlanner() {
 
   const [result, setResult] = useState<{ dist: number; time: number; fare: number } | null>(null)
   const [transitPlan, setTransitPlan] = useState<TransitStep[] | null>(null)
-  const [transitPrice, setTransitPrice] = useState(0)
+  const [transitPrice, setTransitPrice] = useState<number | null>(null)
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null)
   const [followMode, setFollowMode] = useState(false)
   const [showPermAlert, setShowPermAlert] = useState(false)
@@ -225,7 +225,7 @@ export default function RoutePlanner() {
         })
       } catch {}
     }
-  }, [ready])
+  }, [ready, userLoc])
 
   // 实时位置跟踪（通过 ref 更新标记，不触发 React 重渲染）
   useEffect(() => {
@@ -250,7 +250,7 @@ export default function RoutePlanner() {
     setLoading(true)
     setResult(null)
     setTransitPlan(null)
-    setTransitPrice(0)
+    setTransitPrice(null)
     setErrMsg('')
     clearOverlays()
 
@@ -300,7 +300,7 @@ export default function RoutePlanner() {
             const time = Math.round(route.duration)
             setResult({ dist, time, fare: 0 })
             setTransitPlan(plan)
-            setTransitPrice(route.price || 0)
+            setTransitPrice(typeof route.price === 'number' ? route.price : null)
             setErrMsg('')
             drawTransitRoute(plan)
             setLoading(false)
@@ -448,7 +448,7 @@ export default function RoutePlanner() {
                   <div className="text-xs">总耗时 (分钟)</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-orange-50 text-orange-600">
-                  <div className="text-2xl font-bold">{transitPrice > 0 ? `¥${transitPrice / 100}` : '--'}</div>
+                  <div className="text-2xl font-bold">{transitPrice !== null ? `¥${transitPrice / 100}` : '--'}</div>
                   <div className="text-xs">公交票价</div>
                 </div>
               </div>

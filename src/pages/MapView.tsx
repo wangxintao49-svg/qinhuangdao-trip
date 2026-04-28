@@ -17,7 +17,7 @@ const categories = [
 const iconMap: Record<string, string> = { station: '🚉', play: '🎯', food: '🍽️', rainy: '🏛️' }
 
 export default function MapView() {
-  const { filter, setFilter, selected, setSelected, toggleWish, wishlist } = useTripStore()
+  const { filter, setFilter, selected, setSelected, toggleWish, wishlist, spots } = useTripStore()
   const [ready, setReady] = useState(false)
   const [mapErr, setMapErr] = useState(false)
   const [q, setQ] = useState('')

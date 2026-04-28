@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { chatDeepSeek } from '../services/api'
 import { useTripStore } from '../store/tripStore'
+import { pageIntros } from '../data/pageIntros'
+import PageIntro from '../components/PageIntro'
 import type { ChatMessage } from '../types'
 
 const quick = ['推荐半日路线', '拍好看的照片去哪', '下雨怎么办', '我赶火车了']

@@ -18,7 +18,7 @@ export default function PageIntro(props: PageIntroConfig) {
 
   // 弹窗后自动播放语音（若被拦截，用户可手动播放）
   useEffect(() => {
-    if (!dismissed && voiceState === 'idle') {
+    if (!dismissed && (voiceState as string) === 'idle') {
       const timer = setTimeout(() => playVoice().catch(() => {
         if (voiceState === 'playing') setVoiceState('idle')
       }), 600)

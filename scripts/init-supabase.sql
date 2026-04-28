@@ -2,7 +2,7 @@
 -- 在 Supabase 的 SQL Editor 中运行
 
 -- 1. 景点表
-CREATE TABLE spots (
+CREATE TABLE IF NOT EXISTS spots (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   category TEXT NOT NULL CHECK (category IN ('station', 'play', 'food', 'rainy')),
@@ -19,7 +19,7 @@ CREATE TABLE spots (
 );
 
 -- 2. 避坑表
-CREATE TABLE pitfalls (
+CREATE TABLE IF NOT EXISTS pitfalls (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   reason TEXT NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE pitfalls (
 );
 
 -- 3. 行程收藏表（持久化用户收藏）
-CREATE TABLE wishlists (
+CREATE TABLE IF NOT EXISTS wishlists (
   id SERIAL PRIMARY KEY,
   session_id TEXT NOT NULL,
   spot_ids TEXT[] DEFAULT '{}',

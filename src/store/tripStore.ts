@@ -65,11 +65,15 @@ export const useTripStore = create<TripStore>((set, get) => ({
     saveWishlist(getSessionId(), next).catch(() => {})
   },
 
-  setWishlist: (ids) => set({ wishlist: ids }),
+  setWishlist: (ids) => {
+    set({ wishlist: ids })
+    saveWishlist(getSessionId(), ids).catch(() => {})
+  },
   reorderWish: (from, to) => set((s) => {
     const a = [...s.wishlist]
     const [r] = a.splice(from, 1)
     a.splice(to, 0, r)
+    saveWishlist(getSessionId(), a).catch(() => {})
     return { wishlist: a }
   }),
 

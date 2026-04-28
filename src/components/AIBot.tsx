@@ -16,7 +16,12 @@ export default function AIBot() {
     setMsgs((p) => [...p, { role: 'user', text }])
     setVal('')
     setBusy(true)
-    const reply = await chatDeepSeek([{ role: 'system', content: '你是秦皇岛旅行规划助手。回答简洁有用，推荐景点时给出理由。' }, ...msgs.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))])
+    const history = msgs.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))
+    const reply = await chatDeepSeek([
+      { role: 'system', content: '你是秦皇岛旅行规划助手。回答简洁有用，推荐景点时给出理由。' },
+      ...history,
+      { role: 'user', content: text },
+    ])
     setMsgs((p) => [...p, { role: 'ai', text: reply }])
     setBusy(false)
   }

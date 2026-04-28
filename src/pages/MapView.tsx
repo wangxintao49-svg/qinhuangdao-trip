@@ -279,17 +279,33 @@ export default function MapView() {
 
       {selected && (
         <div className="card p-6 mt-6">
+          {selected.imageUrl && (
+            <div className="h-48 rounded-xl overflow-hidden bg-gray-100 mb-4">
+              <img src={selected.imageUrl} alt={selected.name} className="w-full h-full object-cover" />
+            </div>
+          )}
           <div className="flex items-center gap-4 mb-4">
             <span className="text-3xl">{iconMap[selected.category] || '📍'}</span>
             <div>
               <h3 className="text-xl font-bold text-gray-800">{selected.priority === 'core' && '⭐ '}{selected.name}</h3>
               <span className="chip-blue">{selected.type}</span>
+              {selected.ratingText && <span className="text-xs text-gray-500 ml-2">{selected.ratingText}</span>}
             </div>
           </div>
+          <p className="text-gray-700 text-sm mb-3">{selected.intro || selected.note}</p>
+          {selected.recommendation && (
+            <div className="mb-2 p-3 bg-emerald-50 rounded-xl text-sm text-emerald-700">
+              <span className="font-medium">推荐：</span>{selected.recommendation}
+            </div>
+          )}
+          {selected.caution && (
+            <div className="mb-3 p-3 bg-amber-50 rounded-xl text-sm text-amber-700">
+              <span className="font-medium">注意：</span>{selected.caution}
+            </div>
+          )}
           <div className="grid sm:grid-cols-2 gap-4 text-sm">
             <div><span className="text-gray-500">📍</span> {selected.address}</div>
             <div><span className="text-gray-500">🕐</span> {selected.bestTime}</div>
-            <div className="sm:col-span-2"><span className="text-gray-500">📝</span> {selected.note}</div>
             <div className="sm:col-span-2 flex flex-wrap gap-2">
               {selected.tags.map((t, i) => <span key={i} className="chip-blue">{t}</span>)}
             </div>

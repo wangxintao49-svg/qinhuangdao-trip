@@ -17,6 +17,12 @@ export interface Spot {
   bestTime: string
   note: string
   rating: number
+  intro?: string
+  recommendation?: string
+  caution?: string
+  keywords?: string[]
+  imageUrl?: string
+  ratingText?: string
 }
 
 export interface Pitfall {

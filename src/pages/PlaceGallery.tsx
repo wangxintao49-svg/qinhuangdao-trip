@@ -63,25 +63,40 @@ export default function PlaceGallery() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {list.map((s) => (
           <div key={s.id} className="card overflow-hidden hover:shadow-xl transition-shadow">
-            <div className="bg-gradient-to-br from-ocean-400 to-ocean-600 p-5">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center text-xl">{iconMap[s.category] || '📍'}</div>
-                <div className="text-white">
-                  <div className="font-bold">{s.priority === 'core' && <span className="text-yellow-300">⭐ </span>}{s.name}</div>
-                  <div className="text-sm text-white/80">{s.type}</div>
-                </div>
+            {s.imageUrl && (
+              <div className="h-40 overflow-hidden bg-gray-100">
+                <img src={s.imageUrl} alt={s.name} className="w-full h-full object-cover" loading="lazy" />
               </div>
-            </div>
-            <div className="p-5">
-              <p className="text-gray-600 text-sm mb-3">📍 {s.address}</p>
+            )}
+            <div className={s.imageUrl ? 'p-4' : 'p-5'}>
+              {!s.imageUrl && (
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-11 h-11 bg-ocean-100 rounded-xl flex items-center justify-center text-xl">{iconMap[s.category] || '📍'}</div>
+                  <div>
+                    <div className="font-bold text-gray-800">{s.priority === 'core' && <span className="text-yellow-500">⭐ </span>}{s.name}</div>
+                    <div className="text-sm text-gray-500">{s.type}</div>
+                  </div>
+                </div>
+              )}
+              {s.imageUrl && (
+                <h3 className="font-bold text-gray-800 mb-1">{s.priority === 'core' && <span className="text-yellow-500">⭐ </span>}{s.name}</h3>
+              )}
+              {s.ratingText && <p className="text-xs text-gray-500 mb-2">{s.ratingText}</p>}
+              <p className="text-gray-600 text-sm mb-2">📍 {s.address}</p>
               <div className="flex flex-wrap gap-1.5 mb-3">
-                {s.tags.slice(0, 4).map((t, i) => <span key={i} className="chip-blue">{t}</span>)}
+                {s.tags.slice(0, 4).map((t, i) => <span key={i} className="chip-blue text-xs">{t}</span>)}
               </div>
               <div className="bg-gray-50 rounded-xl p-3 mb-3 flex items-center justify-between text-sm">
                 <span className="text-gray-500">🕐 {s.bestTime}</span>
                 <span className="text-yellow-500">{'★'.repeat(s.rating)}{'☆'.repeat(5 - s.rating)}</span>
               </div>
-              <p className="text-gray-600 text-sm mb-4">{s.note}</p>
+              <p className="text-gray-600 text-sm mb-2">{s.intro || s.note}</p>
+              {s.caution && (
+                <details className="mb-3 text-xs">
+                  <summary className="text-amber-600 cursor-pointer hover:text-amber-700 font-medium">⚠️ 避坑提示</summary>
+                  <p className="mt-1 text-gray-500 pl-4">{s.caution}</p>
+                </details>
+              )}
               <div className="flex gap-2">
                 <Link to="/map" className="flex-1 text-center py-2.5 rounded-xl bg-ocean-50 text-ocean-700 text-sm font-medium hover:bg-ocean-100">🗺️ 地图</Link>
                 <button onClick={() => toggleWish(s.id)}

@@ -22,6 +22,12 @@ export async function fetchSpots() {
     bestTime: s.best_time ?? '',
     note: s.note ?? '',
     rating: s.rating ?? 3,
+    intro: s.intro ?? '',
+    recommendation: s.recommendation ?? '',
+    caution: s.caution ?? '',
+    keywords: s.keywords ?? [],
+    imageUrl: s.image_url ?? '',
+    ratingText: s.rating_text ?? '',
   }))
 }
 

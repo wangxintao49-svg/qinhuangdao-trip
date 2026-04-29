@@ -3,8 +3,8 @@ import { ensureVoice, speak, stopSpeak } from '../utils/speak'
 import type { PageIntroConfig } from '../data/pageIntros'
 
 export default function PageIntro(props: PageIntroConfig) {
-  // 全局 sessionStorage 控制：一次取消所有页面不再弹出（刷新后重置）
-  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem('intro_dismissed') === '1')
+  // 每个页面各自 sessionStorage 缓存：看一遍即可，刷新后重置
+  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(props.storageKey) === '1')
   const [voiceState, setVoiceState] = useState<'idle' | 'playing' | 'done'>('idle')
   const playedRef = useRef(false)
 
@@ -28,7 +28,7 @@ export default function PageIntro(props: PageIntroConfig) {
 
   const dismiss = () => {
     stopSpeak()
-    sessionStorage.setItem('intro_dismissed', '1')
+    sessionStorage.setItem(props.storageKey, '1')
     setDismissed(true)
   }
 

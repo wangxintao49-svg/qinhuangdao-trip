@@ -31,6 +31,8 @@ jobs:
           VITE_DEEPSEEK_KEY: ${{ secrets.VITE_DEEPSEEK_KEY }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      - name: SPA fallback for GitHub Pages
+        run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

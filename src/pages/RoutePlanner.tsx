@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTripStore } from '../store/tripStore'
-import { loadTMap, getUserLocation, watchUserLocation } from '../services/api'
-import { haversineDist, estDriveTime, estTaxiFare, decodeDirectionPolyline, generateCurvedPath } from '../utils/geo'
+import { loadTMap, getUserLocation, watchUserLocation, fetchDirection } from '../services/api'
+import { haversineDist, estDriveTime, estTaxiFare, generateCurvedPath } from '../utils/geo'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
 import { getHouseIcon } from '../utils/icons'
@@ -281,40 +281,90 @@ export default function RoutePlanner() {
       setLoading(false)
     }
 
-    // 直接调用 REST API（已验证可用）
-    const key = import.meta.env.VITE_TENCENT_KEY
-    if (!key) { fallback('未配置腾讯地图 API Key'); return }
-
-    const fromStr = `${fromSpot.lat},${fromSpot.lng}`
-    const toStr = `${toSpot.lat},${toSpot.lng}`
-    const modePath = apiMode === 'walking' ? 'walking' : apiMode === 'bicycling' ? 'bicycling' : apiMode === 'transit' ? 'transit' : 'driving'
-
-    fetch(`/api/proxy/ws/direction/v1/${modePath}/?from=${fromStr}&to=${toStr}&key=${key}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.status === 0 && data.result?.routes?.length) {
-          const route = data.result.routes[0]
-          if (apiMode === 'transit') {
-            // 公交：解析详细步骤
-            const plan = parseTransitRoute(route)
-            const dist = Math.round(route.distance / 1000 * 10) / 10
-            const time = Math.round(route.duration)
-            setResult({ dist, time, fare: 0 })
-            setTransitPlan(plan)
-            setTransitPrice(typeof route.price === 'number' ? route.price : null)
-            setErrMsg('')
-            drawTransitRoute(plan)
-            setLoading(false)
-          } else {
-            onResult(route.distance, route.duration, decodeDirectionPolyline(route.polyline))
-          }
+    fetchDirection(
+      { lat: fromSpot.lat, lng: fromSpot.lng },
+      { lat: toSpot.lat, lng: toSpot.lng },
+      apiMode,
+    ).then(({ data: dirData, error }) => {
+      if (dirData) {
+        if (apiMode === "transit" && dirData.steps) {
+          const plan = parseTransitRoute({ steps: dirData.steps, distance: dirData.distance, duration: dirData.duration })
+          const dist = Math.round(dirData.distance / 1000 * 10) / 10
+          const time = dirData.duration
+          setResult({ dist, time, fare: 0 })
+          setTransitPlan(plan)
+          setTransitPrice(typeof dirData.price === "number" ? dirData.price : null)
+          setErrMsg("")
+          drawTransitRoute(plan)
+          setLoading(false)
         } else {
-          setTransitPlan(null)
-          fallback('API 返回错误: ' + (data.message || 'status=' + data.status))
+          onResult(dirData.distance, dirData.duration, dirData.polyline)
         }
+      } else {
+        setTransitPlan(null)
+        fallback(error || "路线获取失败，使用地理估算")
+      }
+    })  }, [fromSpot, toSpot, mode, clearOverlays, drawRoute, drawTransitRoute])
+
+  useEffect(() => {
+    if (!ready || !container.current || mapRef.current) return
+    const opts: any = {
+      center: new window.TMap.LatLng(39.88, 119.5),
+      zoom: 11,
+    }
+    mapRef.current = new window.TMap.Map(container.current, opts)
+  }, [ready])
+
+  // 获取用户位置并加蓝色标记
+  useEffect(() => {
+    getUserLocation().then((loc) => { if (loc) { setUserLoc(loc); userLocRef.current = loc } })
+  }, [])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !userLocRef.current) return
+    if (userMarkerRef.current) { userMarkerRef.current.setMap(null); userMarkerRef.current = null }
+    if (accuracyCircleRef.current) { accuracyCircleRef.current.setMap(null) }
+    try {
+      const houseIcon = getHouseIcon()
+      const style = new window.TMap.MarkerStyle({
+        width: 28, height: 28, anchor: { x: 14, y: 14 },
+        color: '#3B82F6',
+        ...(houseIcon ? { icon: houseIcon } : {}),
       })
-      .catch((e) => { setTransitPlan(null); fallback('网络请求失败: ' + e.message) })
-  }, [fromSpot, toSpot, mode, clearOverlays, drawRoute, drawTransitRoute])
+      userMarkerRef.current = new window.TMap.MultiMarker({
+        map, styles: { m: style },
+        geometries: [{ id: 'user', styleId: 'm', position: new window.TMap.LatLng(userLocRef.current.lat, userLocRef.current.lng), properties: { title: '我的位置' } }],
+      })
+    } catch {}
+    if (userLocRef.current.accuracy && userLocRef.current.accuracy > 0 && userLocRef.current.accuracy < 1000) {
+      try {
+        accuracyCircleRef.current = new (window.TMap as any).MultiCircle({
+          map,
+          styles: { a: new (window.TMap as any).CircleStyle({ color: '#3B82F6', strokeColor: '#3B82F6', strokeWidth: 1, opacity: 0.12 }) },
+          geometries: [{ styleId: 'a', center: new window.TMap.LatLng(userLocRef.current.lat, userLocRef.current.lng), radius: userLocRef.current.accuracy }],
+        })
+      } catch {}
+    }
+  }, [ready, userLoc])
+
+  // 实时位置跟踪（通过 ref 更新标记，不触发 React 重渲染）
+  useEffect(() => {
+    const stopped = { current: false }
+    watchStopRef.current = watchUserLocation(
+      (loc) => {
+        userLocRef.current = loc
+        try { userMarkerRef.current?.setGeometries?.([{ id: 'user', styleId: 'm', position: new window.TMap.LatLng(loc.lat, loc.lng), properties: { title: '我的位置' } }]) } catch {}
+        try { accuracyCircleRef.current?.setGeometries?.([{ styleId: 'a', center: new window.TMap.LatLng(loc.lat, loc.lng), radius: loc.accuracy || 50 }]) } catch {}
+        if (!stopped.current && followMode) {
+          try { mapRef.current?.setCenter(new window.TMap.LatLng(loc.lat, loc.lng)) } catch {}
+        }
+      },
+      () => {},
+    )
+    return () => { stopped.current = true; watchStopRef.current?.() }
+  }, [ready, followMode])
+
 
   // 起止点或交通方式变化自动计算
   useEffect(() => {

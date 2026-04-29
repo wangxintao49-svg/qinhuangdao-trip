@@ -36,15 +36,22 @@ export function estTransitTime(distKm: number): number {
   return Math.round(distKm / 20 * 60 + 15)
 }
 
-/** 解码腾讯地图 Direction API 的增量编码 polyline */
-export function decodeDirectionPolyline(data: number[]): Array<{ lat: number; lng: number }> {
+/** 解码 polyline（支持 REST API 的增量编码 和 TMap SDK 的 {lat,lng}[] 两种格式） */
+export function decodeDirectionPolyline(data: number[] | Array<{ lat: number; lng: number }>): Array<{ lat: number; lng: number }> {
+  if (!data || !data.length) return []
+  // TMap SDK 返回的已解密格式
+  if (typeof data[0] === 'object' && data[0] !== null) {
+    return (data as Array<any>).map(p => ({ lat: p.lat, lng: p.lng }))
+  }
+  // flat number[] 增量编码格式
+  const nums = data as number[]
   const pts: Array<{ lat: number; lng: number }> = []
-  if (data.length < 2) return pts
-  let lat = data[0], lng = data[1]
+  if (nums.length < 2) return pts
+  let lat = nums[0], lng = nums[1]
   pts.push({ lat, lng })
-  for (let i = 2; i < data.length - 1; i += 2) {
-    lat += data[i] * 0.000001
-    lng += data[i + 1] * 0.000001
+  for (let i = 2; i < nums.length - 1; i += 2) {
+    lat += nums[i] * 0.000001
+    lng += nums[i + 1] * 0.000001
     pts.push({ lat, lng })
   }
   return pts

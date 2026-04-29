@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { useTripStore } from '../store/tripStore'
-import { haversineDist, estDriveTime, estTaxiFare, estWalkTime, estRideTime, estTransitTime, decodeDirectionPolyline, generateCurvedPath } from '../utils/geo'
-import { loadTMap, getUserLocation, watchUserLocation } from '../services/api'
+import { haversineDist, estDriveTime, estTaxiFare, estWalkTime, estRideTime, estTransitTime, generateCurvedPath } from '../utils/geo'
+import { loadTMap, getUserLocation, watchUserLocation, fetchDirection } from '../services/api'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
 import { getHouseIcon } from '../utils/icons'
@@ -324,9 +324,6 @@ export default function TripPlan() {
     const ids = dayPlan.items.map((i) => i.spotId)
     if (ids.length < 2) { setSegmentRoutes([]); return }
     setRouteLoading(true)
-    const key = import.meta.env.VITE_TENCENT_KEY
-    if (!key) { setRouteLoading(false); return }
-
     const results: SegmentRoute[] = []
 
     for (let i = 0; i < ids.length - 1; i++) {
@@ -335,9 +332,7 @@ export default function TripPlan() {
       if (!fromSpot || !toSpot) continue
 
       const travelMode = modes[getSegKey(ids[i], ids[i + 1])] || 'driving'
-      const modePath = travelMode === 'walking' ? 'walking' : travelMode === 'bicycling' ? 'bicycling' : travelMode === 'transit' ? 'transit' : 'driving'
-
-      const fallbackRoute = () => {
+            const fallbackRoute = () => {
         const d = haversineDist(fromSpot.lat, fromSpot.lng, toSpot.lat, toSpot.lng)
         const roadDist = Math.round(d * 1.3 * 10) / 10
         let durationMin: number
@@ -349,19 +344,19 @@ export default function TripPlan() {
       }
 
       try {
-        const res = await fetch(`/api/proxy/ws/direction/v1/${modePath}/?from=${fromSpot.lat},${fromSpot.lng}&to=${toSpot.lat},${toSpot.lng}&key=${key}`)
-        const data = await res.json()
-        if (data.status === 0 && data.result?.routes?.length) {
-          const route = data.result.routes[0]
-          let pl: Array<{ lat: number; lng: number }> = []
-          if (travelMode === 'transit' && route.steps) {
-            for (const step of route.steps) {
-              if (step.polyline) pl = pl.concat(decodeDirectionPolyline(step.polyline))
-            }
-          } else if (route.polyline) {
-            pl = decodeDirectionPolyline(route.polyline)
-          }
-          results.push({ fromId: ids[i], toId: ids[i + 1], distanceKm: Math.round(route.distance / 1000 * 10) / 10, durationMin: Math.round(route.duration), polyline: pl })
+        const { data: dirData } = await fetchDirection(
+          { lat: fromSpot.lat, lng: fromSpot.lng },
+          { lat: toSpot.lat, lng: toSpot.lng },
+          travelMode,
+        )
+        if (dirData) {
+          results.push({
+            fromId: ids[i],
+            toId: ids[i + 1],
+            distanceKm: Math.round(dirData.distance / 1000 * 10) / 10,
+            durationMin: dirData.duration,
+            polyline: dirData.polyline,
+          })
         } else {
           const fb = fallbackRoute()
           results.push({ fromId: ids[i], toId: ids[i + 1], ...fb })

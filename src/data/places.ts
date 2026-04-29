@@ -274,6 +274,18 @@ export const spots: Spot[] = [
     keywords: ['脸红秦田田 老虎石', '秦皇岛本地饮品', '老虎石 饮品'],
     imageUrl: '/images/hongqin.jpg',
   },
+  {
+    id: 'test_fool', name: '傻瓜基地', category: 'play', type: '玩乐', priority: 'core',
+    address: '河北省秦皇岛市海港区文化路666号', lng: 119.525, lat: 39.88,
+    tags: ['测试', '打卡', '神秘基地'], bestTime: '全天',
+    note: '这是一个测试地点，用于验证数据是否正常显示。',
+    rating: 5, ratingText: '满分！因为这是测试地点',
+    intro: '这里是传说中的傻瓜基地——一个专门为测试而生的神秘地点。如果你能看到这条信息，说明数据加载完全正常！',
+    recommendation: '建议来打卡拍照，顺便检查一下地图标记是否正确。',
+    caution: '此地点纯属虚构，仅供功能测试使用。',
+    keywords: ['傻瓜基地', '测试', '虚构'],
+    imageUrl: '',
+  },
 ]
 
 export const pitfalls: Pitfall[] = [

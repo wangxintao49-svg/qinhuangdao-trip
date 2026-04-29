@@ -1,4 +1,5 @@
 // 腾讯地图 & DeepSeek API 服务
+// 使用 TMap SDK 内置服务（无 CORS 问题，支持静态部署）
 
 const TENCENT_KEY = import.meta.env.VITE_TENCENT_KEY
 const DEEPSEEK_KEY = import.meta.env.VITE_DEEPSEEK_KEY
@@ -18,14 +19,28 @@ export function loadTMap(): Promise<void> {
   })
 }
 
-// ------ 腾讯地图 WebService API ------
+// ------ TMap SDK 服务封装 ------
 
-// 本地开发用 Vite proxy 避免 CORS，生产环境需部署到同域或服务端代理
-// Capacitor 模式下直接调用腾讯地图 API（WebView 已配置通用访问权限）
-const isWebView = typeof (window as any).Capacitor?.isNative === 'function' && (window as any).Capacitor.isNative()
-const WS_BASE = isWebView ? 'https://apis.map.qq.com' : '/api/proxy'
+/** 将 SDK 返回的 polyline 统一为 {lat,lng}[] */
+function normalizePolyline(pl: any): Array<{ lat: number; lng: number }> {
+  if (!pl || !pl.length) return []
+  if (typeof pl[0] === 'object' && pl[0] !== null) {
+    return pl.map((p: any) => ({ lat: p.lat, lng: p.lng }))
+  }
+  // flat number[] 编码格式
+  const pts: Array<{ lat: number; lng: number }> = []
+  if (pl.length < 2) return pts
+  let lat = pl[0], lng = pl[1]
+  pts.push({ lat, lng })
+  for (let i = 2; i < pl.length - 1; i += 2) {
+    lat += pl[i] * 0.000001
+    lng += pl[i + 1] * 0.000001
+    pts.push({ lat, lng })
+  }
+  return pts
+}
 
-/** 地点自动补全（限制在秦皇岛区域） */
+/** 地点自动补全 */
 export async function suggestPlaces(keyword: string, region = '秦皇岛'): Promise<Array<{
   title: string
   address: string
@@ -33,41 +48,53 @@ export async function suggestPlaces(keyword: string, region = '秦皇岛'): Prom
   location: { lat: number; lng: number }
 }>> {
   if (!keyword.trim()) return []
-  const url = `${WS_BASE}/ws/place/v1/suggestion/?keyword=${encodeURIComponent(keyword)}&region=${encodeURIComponent(region)}&region_fix=1&key=${TENCENT_KEY}`
   try {
-    const res = await fetch(url)
-    const data = await res.json()
-    return data.status === 0 ? (data.data ?? []) : []
-  } catch { return [] }
+    if (window.TMap?.service?.Suggestion) {
+      const svc = new window.TMap.service.Suggestion()
+      const res = await svc.getSuggestions({ keyword, region, region_fix: 1 })
+      return (res.data ?? []).map((item: any) => ({
+        title: item.title, address: item.address,
+        category: item.category, location: item.location,
+      }))
+    }
+  } catch {}
+  return []
 }
 
-/** 周边搜索（500m 范围内） */
-export async function searchNearby(lat: number, lng: number, keyword = ''): Promise<Array<{
+/** 周边搜索 */
+export async function searchNearby(lat: number, lng: number, _keyword = ''): Promise<Array<{
   title: string
   address: string
   category: string
   distance: number
   location: { lat: number; lng: number }
 }>> {
-  const boundary = `nearby(${lat},${lng},500)`
-  const url = `${WS_BASE}/ws/place/v1/search/?boundary=${encodeURIComponent(boundary)}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}&key=${TENCENT_KEY}`
   try {
-    const res = await fetch(url)
-    const data = await res.json()
-    return data.status === 0 ? (data.data ?? []) : []
-  } catch { return [] }
+    if (window.TMap?.service?.Search) {
+      const svc = new window.TMap.service.Search()
+      const res = await svc.searchNearby({
+        keyword: _keyword,
+        location: new window.TMap.LatLng(lat, lng),
+        radius: 500,
+      })
+      return (res.data ?? []).map((item: any) => ({
+        title: item.title, address: item.address,
+        category: item.category, distance: item.distance,
+        location: item.location,
+      }))
+    }
+  } catch {}
+  return []
 }
 
-/** IP 定位 */
-export async function getIpLocation(): Promise<{ lat: number; lng: number; city: string } | null> {
-  const url = `${WS_BASE}/ws/location/v1/ip?key=${TENCENT_KEY}`
+/** IP 定位（仅作 fallback，CORS 可能失败，失败不影响主流程） */
+async function getIpLocation(): Promise<{ lat: number; lng: number; city: string } | null> {
   try {
-    const res = await fetch(url)
+    const res = await fetch(`https://apis.map.qq.com/ws/location/v1/ip?key=${TENCENT_KEY}`)
     const data = await res.json()
     if (data.status === 0 && data.result) {
       return {
-        lat: data.result.location.lat,
-        lng: data.result.location.lng,
+        lat: data.result.location.lat, lng: data.result.location.lng,
         city: data.result.ad_info?.city ?? '',
       }
     }
@@ -79,19 +106,16 @@ export interface LocationResult {
   lat: number; lng: number; city: string; accuracy?: number
 }
 
-/** 获取用户真实位置（优先浏览器 GPS/WiFi，降级 IP 定位） */
+/** 获取用户真实位置（优先 GPS，降级 IP） */
 export async function getUserLocation(): Promise<LocationResult | null> {
   if (navigator.geolocation) {
-    // 先试高精度 GPS（长时间等待获取卫星锁定）
     try {
       const pos = await new Promise<GeolocationPosition>((ok, fail) => {
         navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
       })
       const acc = Math.round(pos.coords.accuracy)
-      // 精度 ≤ 100m 直接返回；较差精度则等第二次尝试
       if (acc <= 100) return { lat: pos.coords.latitude, lng: pos.coords.longitude, city: '', accuracy: acc }
     } catch {}
-    // 降级：非高精度但更快获取
     try {
       const pos = await new Promise<GeolocationPosition>((ok, fail) => {
         navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: false, timeout: 8000 })
@@ -105,7 +129,7 @@ export async function getUserLocation(): Promise<LocationResult | null> {
   return getIpLocation()
 }
 
-/** 持续跟踪位置（最高精度导航），返回取消函数 */
+/** 持续跟踪位置 */
 export function watchUserLocation(
   onUpdate: (loc: LocationResult) => void,
   onError?: () => void,
@@ -120,6 +144,55 @@ export function watchUserLocation(
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
   )
   return () => navigator.geolocation.clearWatch(id)
+}
+
+// ------ 路线规划（TMap Direction SDK） ------
+
+export interface DirectionSegment {
+  distance: number       // 米
+  duration: number       // 分钟
+  polyline: Array<{ lat: number; lng: number }>
+  price?: number
+  steps?: any[]          // 公交专用
+}
+
+/** 路线规划（无 CORS 限制，支持静态部署） */
+export async function fetchDirection(
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number },
+  mode: 'driving' | 'walking' | 'bicycling' | 'transit',
+): Promise<{ data: DirectionSegment | null; error?: string }> {
+  try {
+    if (!window.TMap?.service?.Direction) return { data: null, error: 'SDK not ready' }
+
+    const svc = new window.TMap.service.Direction()
+    const params: any = {
+      from: new window.TMap.LatLng(from.lat, from.lng),
+      to: new window.TMap.LatLng(to.lat, to.lng),
+    }
+    if (mode === 'driving') params.policy = 'LEAST_TIME'
+
+    const method = mode === 'driving' ? 'drive' : mode === 'walking' ? 'walk' : mode === 'bicycling' ? 'bike' : 'transit'
+    const result = await svc[method](params)
+
+    if (result.status === 0 && result.result?.routes?.length) {
+      const route = result.result.routes[0]
+      // SDK 返回的 duration 是秒，统一转为分钟
+      const durationMin = route.duration >= 86400 ? route.duration / 60 : route.duration
+      return {
+        data: {
+          distance: route.distance,
+          duration: Math.round(durationMin),
+          polyline: normalizePolyline(route.polyline),
+          price: route.price,
+          steps: route.steps,
+        },
+      }
+    }
+    return { data: null, error: result.message || 'no route' }
+  } catch (e: any) {
+    return { data: null, error: e.message }
+  }
 }
 
 // ------ DeepSeek AI ------

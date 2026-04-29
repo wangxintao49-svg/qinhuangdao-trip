@@ -68,7 +68,7 @@ export default function AppSettings() {
           {/* 数据概览 */}
           <div className="card p-5">
             <h3 className="font-semibold text-gray-700 mb-4">📊 数据概览</h3>
-            <div className="overflow-hidden rounded-xl border border-gray-200">
+            <div className="overflow-x-auto rounded-xl border border-gray-200">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>

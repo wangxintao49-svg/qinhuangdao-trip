@@ -151,9 +151,9 @@ export default function AIChat() {
       </h2>
       <p className="text-xs mb-4" style={{ color: 'var(--qhd-muted)' }}>智能出行规划，和 AI 聊你的需求</p>
 
-      <div className="grid lg:grid-cols-[1fr_420px] gap-5" style={{ height: 'calc(100vh - 220px)' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 lg:h-[calc(100vh-220px)] min-h-[calc(100vh-300px)]">
         {/* Left: Chat */}
-        <div className="flex flex-col rounded-[24px] overflow-hidden" style={{ background: 'rgba(255,255,255,.82)', backdropFilter: 'blur(18px)', boxShadow: 'var(--qhd-shadow-card)' }}>
+        <div className="flex flex-col rounded-[24px] overflow-hidden max-h-[60vh] lg:max-h-none" style={{ background: 'rgba(255,255,255,.82)', backdropFilter: 'blur(18px)', boxShadow: 'var(--qhd-shadow-card)' }}>
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {msgs.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>

@@ -34,7 +34,7 @@ export default function PlaceGallery() {
         <PageIntro {...pageIntros.gallery} />
         <h2 className="text-2xl font-bold text-ocean-800">📍 地点库</h2>
         <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">{spots.length} 个地点</span>
-        <div className="flex gap-2 ml-auto">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 ml-auto">
           {['all', 'play', 'food', 'rainy'].map((k) => (
             <button key={k} onClick={() => setCat(k)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${cat === k ? 'bg-ocean-500 text-white' : 'bg-white border border-ocean-100 text-gray-600'}`}>

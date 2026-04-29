@@ -229,7 +229,7 @@ export default function MapView() {
         ))}
         <div className="relative ml-auto">
           <input value={q} onChange={(e) => handleSearch(e.target.value)} placeholder="搜索地点..."
-            className="w-48 px-4 py-2 bg-white rounded-xl border border-ocean-100 text-sm focus:outline-none focus:ring-2 focus:ring-ocean-400" />
+            className="w-full lg:w-48 px-4 py-2 bg-white rounded-xl border border-ocean-100 text-sm focus:outline-none focus:ring-2 focus:ring-ocean-400" />
           {suggestions.length > 0 && (
             <div className="absolute top-full mt-1 left-0 right-0 bg-white rounded-xl shadow-lg border z-20 max-h-48 overflow-y-auto">
               {suggestions.map((s, i) => (
@@ -268,7 +268,7 @@ export default function MapView() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <div ref={container} className="lg:col-span-2 h-[520px] card rounded-2xl overflow-hidden relative">
+        <div ref={container} className="lg:col-span-2 h-[50vh] lg:h-[520px] min-h-[280px] card rounded-2xl overflow-hidden relative">
           {mapErr && <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500">地图加载失败</div>}
           {!ready && !mapErr && <div className="absolute inset-0 flex items-center justify-center bg-ocean-50 text-ocean-600 font-medium">加载地图中...</div>}
           {ready && list.length === 0 && <div className="absolute top-4 left-4 bg-white/90 px-4 py-2 rounded-xl text-sm text-gray-500 shadow">无匹配地点</div>}

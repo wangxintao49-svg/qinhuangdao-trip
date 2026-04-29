@@ -365,7 +365,7 @@ export default function RoutePlanner() {
           </div>
         </div>
         <div className="lg:col-span-2 space-y-4">
-          <div ref={container} className="h-[420px] card rounded-2xl overflow-hidden relative">
+          <div ref={container} className="h-[300px] lg:h-[420px] card rounded-2xl overflow-hidden relative">
             {!ready && <div className="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-400 text-sm">加载地图中...</div>}
             {userLoc && (
               <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-10">

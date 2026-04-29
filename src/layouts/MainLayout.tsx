@@ -53,7 +53,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       </header>
 
       {/* 内容 */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">{children}</main>
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6 pb-20 lg:pb-6">{children}</main>
 
       {/* 移动端底栏 */}
       <nav className="sticky bottom-0 z-40 md:hidden" style={{ background: 'rgba(255,255,255,.9)', backdropFilter: 'blur(18px)', borderTop: '1px solid rgba(6,43,85,.08)' }}>

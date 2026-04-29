@@ -1,5 +1,22 @@
 // 腾讯地图 SDK 类型声明
 declare namespace TMap {
+  namespace service {
+    class Suggestion {
+      constructor()
+      getSuggestions(opts: { keyword: string; region?: string; region_fix?: number }): Promise<{ status: number; data: Array<{ title: string; address: string; category: string; location: { lat: number; lng: number } }> }>
+    }
+    class Search {
+      constructor()
+      searchNearby(opts: { keyword?: string; location: LatLng; radius: number }): Promise<{ status: number; data: Array<{ title: string; address: string; category: string; distance: number; location: { lat: number; lng: number } }> }>
+    }
+    class Direction {
+      constructor()
+      drive(opts: { from: LatLng; to: LatLng; policy?: string }): Promise<{ status: number; result?: { routes: services.DirectionRoute[] } }>
+      walk(opts: { from: LatLng; to: LatLng }): Promise<{ status: number; result?: { routes: services.DirectionRoute[] } }>
+      bike(opts: { from: LatLng; to: LatLng }): Promise<{ status: number; result?: { routes: services.DirectionRoute[] } }>
+      transit(opts: { from: LatLng; to: LatLng }): Promise<{ status: number; result?: { routes: services.DirectionRoute[] } }>
+    }
+  }
   class Map {
     constructor(el: HTMLElement, opts: {
       center: LatLng

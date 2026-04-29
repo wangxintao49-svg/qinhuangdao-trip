@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { chatDeepSeek } from '../services/api'
 import { useTripStore } from '../store/tripStore'
@@ -80,14 +80,34 @@ const iconMap: Record<string, string> = { station: '🚉', play: '🎯', food: '
 export default function AIChat() {
   const navigate = useNavigate()
   const { spots } = useTripStore()
-  const [msgs, setMsgs] = useState<ChatMessage[]>([
-    { role: 'ai', text: '👋 你好！我是 **AI 智行**——你的秦皇岛专属旅行规划师。\n\n我可以帮你：\n• **量身定制路线** — 告诉我你几天、什么风格、从哪里出发，我帮你排出行程\n• **解答所有疑问** — 景点值不值得去？怎么去最方便？附近还有什么好玩的？\n• **实时调整方案** — 天气变了、时间不够、突然想吃海鲜——告诉我，我马上重新规划\n\n直接说出你的需求，比如「帮我安排一天的精华路线」「我中午到北戴河站，打算玩到傍晚」「带老人小孩，轻松一点」「想吃海鲜，推荐个路线」…… 任何问题都可以！' },
-  ])
+
+  const welcomeMsg = { role: 'ai' as const, text: '👋 你好！我是 **AI 智行**——你的秦皇岛专属旅行规划师。\n\n我可以帮你：\n• **量身定制路线** — 告诉我你几天、什么风格、从哪里出发，我帮你排出行程\n• **解答所有疑问** — 景点值不值得去？怎么去最方便？附近还有什么好玩的？\n• **实时调整方案** — 天气变了、时间不够、突然想吃海鲜——告诉我，我马上重新规划\n\n直接说出你的需求，比如「帮我安排一天的精华路线」「我中午到北戴河站，打算玩到傍晚」「带老人小孩，轻松一点」「想吃海鲜，推荐个路线」…… 任何问题都可以！' }
+
+  const CHAT_KEY = 'qhd_ai_chat_msgs'
+  const SUGG_KEY = 'qhd_ai_suggestion'
+
+  const [msgs, setMsgs] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem(CHAT_KEY)
+      if (saved) return JSON.parse(saved)
+    } catch {}
+    return [welcomeMsg]
+  })
   const [val, setVal] = useState('')
   const [busy, setBusy] = useState(false)
-  const [suggestion, setSuggestion] = useState<RouteSuggestion | null>(null)
+  const [suggestion, setSuggestion] = useState<RouteSuggestion | null>(() => {
+    try {
+      const saved = localStorage.getItem(SUGG_KEY)
+      if (saved) return JSON.parse(saved)
+    } catch {}
+    return null
+  })
   const [showConfirm, setShowConfirm] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  // 持久化聊天记录和路线推荐
+  useEffect(() => { localStorage.setItem(CHAT_KEY, JSON.stringify(msgs)) }, [msgs])
+  useEffect(() => { if (suggestion) localStorage.setItem(SUGG_KEY, JSON.stringify(suggestion)) }, [suggestion])
 
   const send = async (text = val) => {
     if (!text.trim() || busy) return

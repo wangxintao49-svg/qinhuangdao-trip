@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useTripStore } from '../store/tripStore'
+import type { PlaceCategory, Spot } from '../types'
 import { loadTMap, suggestPlaces, searchNearby, getUserLocation, watchUserLocation } from '../services/api'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
@@ -17,7 +18,7 @@ const categories = [
 const iconMap: Record<string, string> = { station: '🚉', play: '🎯', food: '🍽️', rainy: '🏛️' }
 
 export default function MapView() {
-  const { filter, setFilter, selected, setSelected, toggleWish, wishlist, spots } = useTripStore()
+  const { filter, setFilter, selected, setSelected, toggleWish, wishlist, spots, addCustomSpot } = useTripStore()
   const [ready, setReady] = useState(false)
   const [mapErr, setMapErr] = useState(false)
   const [q, setQ] = useState('')
@@ -36,6 +37,12 @@ export default function MapView() {
   const userMarkerRef = useRef<any>(null)
   const trafficRef = useRef<any>(null)
   const initCalled = useRef(false)
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [addForm, setAddForm] = useState({
+    name: '', address: '', lat: 0, lng: 0,
+    category: 'play' as PlaceCategory,
+    intro: '', tags: ''
+  })
 
   const list = spots
     .filter((s) => filter === 'all' || s.category === filter)
@@ -45,6 +52,7 @@ export default function MapView() {
   useEffect(() => {
     if (initCalled.current) return
     initCalled.current = true
+    setSelected(null)
     Promise.all([
       loadTMap(),
       getUserLocation().then((loc) => { if (loc) { setUserLoc(loc); userLocRef.current = loc } }),
@@ -225,11 +233,30 @@ export default function MapView() {
           {suggestions.length > 0 && (
             <div className="absolute top-full mt-1 left-0 right-0 bg-white rounded-xl shadow-lg border z-20 max-h-48 overflow-y-auto">
               {suggestions.map((s, i) => (
-                <button key={i} onClick={() => { setQ(s.title); setSuggestions([]) }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-ocean-50 border-b last:border-0">
-                  <span className="text-gray-800">{s.title}</span>
-                  <span className="text-gray-400 text-xs block truncate">{s.address}</span>
-                </button>
+                <div key={i} className="flex items-stretch border-b last:border-0">
+                  <button onClick={() => { setQ(s.title); setSuggestions([])
+                    if ((s as any).location && mapRef.current) {
+                      const loc = (s as any).location
+                      mapRef.current.setCenter(new window.TMap.LatLng(loc.lat, loc.lng))
+                      mapRef.current.setZoom(15)
+                    }
+                  }}
+                    className="flex-1 text-left px-4 py-2.5 text-sm hover:bg-ocean-50">
+                    <span className="text-gray-800">{s.title}</span>
+                    <span className="text-gray-400 text-xs block truncate">{s.address}</span>
+                  </button>
+                  {(s as any).location && (
+                    <button onClick={() => {
+                      const loc = (s as any).location
+                      setAddForm({ name: s.title, address: s.address, lat: loc.lat, lng: loc.lng, category: 'play', intro: '', tags: '' })
+                      setShowAddDialog(true)
+                    }}
+                      className="px-3 py-2.5 text-xs font-medium shrink-0 hover:bg-ocean-50 border-l"
+                      style={{ color: 'var(--qhd-blue)' }}>
+                      ＋加入
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           )}
@@ -344,6 +371,98 @@ export default function MapView() {
             <h3 className="font-bold text-lg text-gray-800 mb-2">📍 需要定位权限</h3>
             <p className="text-gray-600 text-sm mb-4">请允许浏览器获取您的位置信息，以便使用定位功能。您可以在浏览器地址栏左侧的锁图标中修改权限设置。</p>
             <button onClick={() => setShowPermAlert(false)} className="btn-solid w-full">知道了</button>
+          </div>
+        </div>
+      )}
+
+      {/* 加入地点库对话框 */}
+      {showAddDialog && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowAddDialog(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--qhd-navy)' }}>📍 加入地点库</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--qhd-muted)' }}>名称</label>
+                <input value={addForm.name} onChange={(e) => setAddForm(f => ({ ...f, name: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'rgba(11,92,173,.15)' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--qhd-muted)' }}>地址</label>
+                <input value={addForm.address} onChange={(e) => setAddForm(f => ({ ...f, address: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'rgba(11,92,173,.15)' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--qhd-muted)' }}>分类</label>
+                <div className="flex gap-2">
+                  {([
+                    { key: 'play' as const, label: '🎯 玩乐' },
+                    { key: 'food' as const, label: '🍽️ 吃喝' },
+                    { key: 'rainy' as const, label: '🏛️ 雨天' },
+                  ]).map((c) => (
+                    <button key={c.key} onClick={() => setAddForm(f => ({ ...f, category: c.key }))}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                        addForm.category === c.key ? 'text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                      style={addForm.category === c.key ? { background: 'linear-gradient(135deg, #062B55, #0B5CAD)' } : {}}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--qhd-muted)' }}>描述</label>
+                <textarea value={addForm.intro} onChange={(e) => setAddForm(f => ({ ...f, intro: e.target.value }))}
+                  rows={3} placeholder="简单介绍一下这个地方..."
+                  className="w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 resize-none"
+                  style={{ borderColor: 'rgba(11,92,173,.15)' }} />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--qhd-muted)' }}>标签（逗号分隔）</label>
+                <input value={addForm.tags} onChange={(e) => setAddForm(f => ({ ...f, tags: e.target.value }))}
+                  placeholder="例如: 打卡,拍照,顺路"
+                  className="w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'rgba(11,92,173,.15)' }} />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => {
+                if (!addForm.name.trim()) return
+                const tags = addForm.tags
+                  .split(/[,，\s]+/)
+                  .map(t => t.trim())
+                  .filter(Boolean)
+                const spot: Spot = {
+                  id: `custom_${Date.now()}`,
+                  name: addForm.name,
+                  category: addForm.category,
+                  type: addForm.category === 'play' ? '玩乐' : addForm.category === 'food' ? '吃喝' : '雨天',
+                  priority: 'backup',
+                  address: addForm.address,
+                  lng: addForm.lng,
+                  lat: addForm.lat,
+                  tags,
+                  bestTime: '随时',
+                  note: addForm.intro,
+                  rating: 3,
+                  intro: addForm.intro || undefined,
+                }
+                addCustomSpot(spot)
+                setShowAddDialog(false)
+              }}
+                className="flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition-all hover:translate-y-[-1px]"
+                style={{ background: 'linear-gradient(135deg, #062B55, #0B5CAD)' }}>
+                保存
+              </button>
+              <button onClick={() => setShowAddDialog(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium"
+                style={{ background: 'rgba(0,0,0,.04)', color: 'var(--qhd-muted)' }}>
+                取消
+              </button>
+            </div>
           </div>
         </div>
       )}

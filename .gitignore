@@ -24,6 +24,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # Netlify
 .netlify/
 .vercel

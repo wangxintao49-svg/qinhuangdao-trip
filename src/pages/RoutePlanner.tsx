@@ -260,7 +260,8 @@ export default function RoutePlanner() {
     const onResult = (distMeters: number, durMins: number, polyline: Array<{ lat: number; lng: number }> | null) => {
       const dist = Math.round(distMeters / 1000 * 10) / 10
       const time = Math.round(durMins)
-      const fare = estTaxiFare(dist)
+      // 步行/骑行不计打车费
+      const fare = (apiMode === 'walking' || apiMode === 'bicycling') ? 0 : estTaxiFare(dist)
       setResult({ dist, time, fare })
       setErrMsg('')
       drawRoute(polyline)
@@ -272,7 +273,7 @@ export default function RoutePlanner() {
       const dist = haversineDist(fromSpot.lat, fromSpot.lng, toSpot.lat, toSpot.lng)
       const roadDist = Math.round(dist * 1.3 * 10) / 10
       const time = estDriveTime(roadDist)
-      const fare = apiMode === 'transit' ? 0 : estTaxiFare(roadDist)
+      const fare = (apiMode === 'transit' || apiMode === 'walking' || apiMode === 'bicycling') ? 0 : estTaxiFare(roadDist)
       setResult({ dist: roadDist, time, fare })
       setTransitPlan(null)
       drawRoute(null)
@@ -288,7 +289,7 @@ export default function RoutePlanner() {
     const toStr = `${toSpot.lat},${toSpot.lng}`
     const modePath = apiMode === 'walking' ? 'walking' : apiMode === 'bicycling' ? 'bicycling' : apiMode === 'transit' ? 'transit' : 'driving'
 
-    fetch(`/tencent-api/ws/direction/v1/${modePath}/?from=${fromStr}&to=${toStr}&key=${key}`)
+    fetch(`/api/proxy/ws/direction/v1/${modePath}/?from=${fromStr}&to=${toStr}&key=${key}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.status === 0 && data.result?.routes?.length) {
@@ -469,7 +470,7 @@ export default function RoutePlanner() {
                 {[
                   { label: mode === 'transit' ? '总距离' : '驾驶距离', val: `${result.dist}`, unit: 'km', color: 'text-ocean-600 bg-ocean-50' },
                   { label: '预计耗时', val: `${result.time}`, unit: `分钟（${modeLabel[mode]}）`, color: 'text-emerald-600 bg-emerald-50' },
-                  { label: mode === 'transit' ? '公交票价' : '打车预估', val: mode === 'transit' ? (result.fare > 0 ? `¥${result.fare}` : '--') : `¥${result.fare}`, unit: mode === 'transit' ? (result.fare > 0 ? '' : '估算') : '约', color: 'text-orange-600 bg-orange-50' },
+                  { label: mode === 'transit' ? '公交票价' : (mode === 'walking' || mode === 'bicycling') ? '运动消耗' : '打车预估', val: (mode === 'walking' || mode === 'bicycling') ? `${result.time * 4}` : `¥${result.fare}`, unit: (mode === 'walking' || mode === 'bicycling') ? '千卡' : '约', color: 'text-orange-600 bg-orange-50' },
                 ].map((d, i) => (
                   <div key={i} className={`text-center p-4 rounded-xl ${d.color}`}>
                     <div className="text-2xl font-bold">{d.val}</div>

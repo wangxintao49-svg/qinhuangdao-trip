@@ -7,10 +7,10 @@ export default defineConfig({
     port: 3002,
     host: true,
     proxy: {
-      '/tencent-api': {
+      '/api/proxy': {
         target: 'https://apis.map.qq.com',
         changeOrigin: true,
-        rewrite: (p) => p.replace(/^\/tencent-api/, ''),
+        rewrite: (p) => p.replace(/^\/api\/proxy/, ''),
       },
       '/baidu-auth': {
         target: 'https://aip.baidubce.com',

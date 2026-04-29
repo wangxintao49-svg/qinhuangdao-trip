@@ -7,7 +7,7 @@ export const spots: Spot[] = [
   // ═══ 车站 ═══
   {
     id: 'bdh_stn', name: '北戴河站', category: 'station', type: '车站', priority: 'start',
-    address: '河北省秦皇岛市北戴河区站南大街', lng: 119.46512, lat: 39.82744,
+    address: '河北省秦皇岛市北戴河区站南大街', lng: 119.4294, lat: 39.851,
     tags: ['车站', '起点'], bestTime: '到站/出发',
     note: '本次行程的到达/出发核心车站之一，适合作为北戴河海滨方向的起点。',
     rating: 4, ratingText: '交通枢纽，无统一景点评分',
@@ -19,7 +19,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'qhd_stn', name: '秦皇岛站', category: 'station', type: '车站', priority: 'end',
-    address: '河北省秦皇岛市海港区北环路与迎宾路交汇处', lng: 119.58337, lat: 39.93641,
+    address: '河北省秦皇岛市海港区北环路与迎宾路交汇处', lng: 119.6066, lat: 39.9643,
     tags: ['车站', '返程'], bestTime: '返程前',
     note: '本次行程的返程核心车站，适合作为市区收尾点。',
     rating: 4, ratingText: '交通枢纽，无统一景点评分',
@@ -32,7 +32,7 @@ export const spots: Spot[] = [
   // ═══ 玩乐主线 ═══
   {
     id: 'geziwo', name: '鸽子窝公园', category: 'play', type: '玩乐', priority: 'core',
-    address: '秦皇岛市北戴河区鸽赤路25号', lng: 119.5329, lat: 39.8394,
+    address: '秦皇岛市北戴河区鸽赤路25号', lng: 119.5264, lat: 39.8364,
     tags: ['必去', '看日出', '海边', '观鸟'], bestTime: '清晨/上午',
     note: '北戴河最经典的观海与观日出地点之一，海岸、湿地、礁石和候鸟元素集中。',
     rating: 5, ratingText: 'Trip.com 约4.5/5，点评量1万+；河北热门打卡景点',
@@ -44,7 +44,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'laohushi', name: '老虎石海上公园', category: 'play', type: '玩乐', priority: 'core',
-    address: '秦皇岛市北戴河区保二路南口 / 中海滩路一带', lng: 119.4887, lat: 39.8203,
+    address: '秦皇岛市北戴河区保二路南口 / 中海滩路一带', lng: 119.4893, lat: 39.8159,
     tags: ['必去', '海边', '礁石', '日落'], bestTime: '下午/傍晚',
     note: '北戴河传统海滨景点，以海滩、礁石、踏浪和日落氛围为主。',
     rating: 4, ratingText: 'Trip.com 约4.4/5，约1371条评价',
@@ -56,7 +56,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'biluota', name: '碧螺塔海上酒吧公园', category: 'play', type: '玩乐', priority: 'core',
-    address: '秦皇岛市北戴河区东海滩路中段', lng: 119.5366, lat: 39.8204,
+    address: '秦皇岛市北戴河区东海滩路中段', lng: 119.5334, lat: 39.818,
     tags: ['必去', '夜景', '演艺', '海边'], bestTime: '傍晚/夜间',
     note: '北戴河夜游、灯塔、演艺和海边氛围打卡点。',
     rating: 4, ratingText: 'Trip.com 约4.4/5，点评量3000+；夜游热度较高',
@@ -68,7 +68,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'xigang', name: '西港花园', category: 'play', type: '玩乐', priority: 'core',
-    address: '秦皇岛市海港区东山街与南山街交叉口附近', lng: 119.6135, lat: 39.9235,
+    address: '秦皇岛市海港区东山街与南山街交叉口附近', lng: 119.6179, lat: 39.9144,
     tags: ['必去', '港口', '工业风', '拍照'], bestTime: '下午/傍晚',
     note: '老港口更新改造形成的工业风海边游览区，兼具港口文化、海岸散步、拍照和文创氛围。',
     rating: 5, ratingText: 'Trip.com/携程同片区约4.6/5，评价量较小但近期热度高',
@@ -80,7 +80,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'port_museum', name: '秦皇岛港口博物馆', category: 'play', type: '玩乐', priority: 'backup',
-    address: '秦皇岛市海港区南山街13号（西港花园片区）', lng: 119.61308, lat: 39.91046,
+    address: '秦皇岛市海港区南山街13号（西港花园片区）', lng: 119.6188, lat: 39.9115,
     tags: ['港口', '博物馆', '工业遗产', '顺路'], bestTime: '雨天/下午',
     note: '展示秦皇岛港口历史文化的行业博物馆，适合与西港花园合并游览。',
     rating: 3, ratingText: '行业博物馆，无统一大众景点评分；2013年成立',
@@ -92,7 +92,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'safari', name: '秦皇岛野生动物园', category: 'play', type: '玩乐', priority: 'core',
-    address: '秦皇岛市北戴河区滨海大道中段62号', lng: 119.5333, lat: 39.8667,
+    address: '秦皇岛市北戴河区滨海大道中段62号', lng: 119.5213, lat: 39.8701,
     tags: ['亲子', '动物园', '半日'], bestTime: '上午/下午',
     note: '以自然环境和动物展示为核心的大型动物园，适合亲子、动物爱好者、半日游。',
     rating: 4, ratingText: 'Trip.com 约4.4/5，9845条评价；亲子热度高',
@@ -105,7 +105,7 @@ export const spots: Spot[] = [
   // ═══ 顺路备选 ═══
   {
     id: 'jinmeng', name: '金梦海湾浴场', category: 'play', type: '玩乐', priority: 'backup',
-    address: '秦皇岛市海港区文体路22号 / 河滨路金梦海湾一带', lng: 119.5441, lat: 39.8945,
+    address: '秦皇岛市海港区文体路22号 / 河滨路金梦海湾一带', lng: 119.5686, lat: 39.915,
     tags: ['顺路', '海边', '散步', '骑行'], bestTime: '下午/傍晚',
     note: '城市海岸线看海点，沙滩和滨海步道适合散步、骑行、看日出/日落。',
     rating: 3, ratingText: '携程约4.6/5，9条点评；免费、全年全天开放',
@@ -117,7 +117,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'qianshui', name: '浅水湾浴场', category: 'play', type: '玩乐', priority: 'backup',
-    address: '秦皇岛市北戴河区滨海大道52号/56号附近', lng: 119.5315, lat: 39.8565,
+    address: '秦皇岛市北戴河区滨海大道52号/56号附近', lng: 119.522, lat: 39.8493,
     tags: ['顺路', '赶海', '玩沙', '亲子'], bestTime: '退潮/白天',
     note: '水浅滩平，适合赶海、玩沙、亲子短停。',
     rating: 3, ratingText: '携程约4.1/5，约48条点评；免费/全天开放',
@@ -129,7 +129,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'botanical', name: '秦皇植物园', category: 'play', type: '玩乐', priority: 'backup',
-    address: '秦皇岛市海港区西环北路70号附近', lng: 119.54, lat: 39.95,
+    address: '秦皇岛市海港区西环北路70号附近', lng: 119.5518, lat: 39.9471,
     tags: ['顺路', '散步', '植物'], bestTime: '顺路',
     note: '城市植物园，适合花草植物、轻松散步和休息。',
     rating: 3, ratingText: 'Trip.com 约4.8/5，约69条评价；免费、适合散步',
@@ -141,7 +141,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'tanghe', name: '汤河公园', category: 'play', type: '玩乐', priority: 'backup',
-    address: '秦皇岛市海港区河北大街西段 / 汤河下游一带', lng: 119.556, lat: 39.949,
+    address: '秦皇岛市海港区河北大街西段 / 汤河下游一带', lng: 119.5273, lat: 39.8959,
     tags: ['顺路', '散步', '城市景观'], bestTime: '顺路',
     note: '以汤河沿岸生态景观和红飘带景观为特色的城市公园。',
     rating: 2, ratingText: '去哪儿约4.5/5，33条点评；城市公园',
@@ -153,7 +153,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'kailuan', name: '开滦路历史文化街区', category: 'food', type: '吃喝', priority: 'backup',
-    address: '秦皇岛市海港区开滦路与海滨路交叉口一带', lng: 119.6135, lat: 39.9275,
+    address: '秦皇岛市海港区开滦路与海滨路交叉口一带', lng: 119.6123, lat: 39.9213,
     tags: ['顺路', '夜间', '街区'], bestTime: '夜间顺路',
     note: '市区历史文化与街区氛围点，适合夜间顺路拍照和短暂停留。',
     rating: 3, ratingText: '历史文化街区，无统一综合评分；适合夜间顺路',
@@ -166,7 +166,7 @@ export const spots: Spot[] = [
   // ═══ 雨天/室内 ═══
   {
     id: 'qhd_museum', name: '秦皇岛博物馆', category: 'rainy', type: '雨天', priority: 'backup',
-    address: '秦皇岛市海港区河北大街西段521号', lng: 119.5089, lat: 39.8853,
+    address: '秦皇岛市海港区河北大街西段521号', lng: 119.5647, lat: 39.9185,
     tags: ['雨天', '室内', '博物馆', '预约'], bestTime: '雨天/下午',
     note: '了解秦皇岛历史、城市文化和地方发展的综合性博物馆。',
     rating: 4, ratingText: '官方免费预约；携程相关页约4.0/5',
@@ -178,7 +178,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'glass_museum', name: '秦皇岛市玻璃博物馆', category: 'rainy', type: '雨天', priority: 'backup',
-    address: '秦皇岛市海港区文化路44号', lng: 119.5986, lat: 39.9231,
+    address: '秦皇岛市海港区文化路44号', lng: 119.6042, lat: 39.924,
     tags: ['雨天', '室内', '玻璃艺术', '工业遗产'], bestTime: '雨天/下午',
     note: '依托原耀华玻璃厂遗址建设的专题博物馆，展示玻璃工业与城市工业文化。',
     rating: 4, ratingText: '官方免费馆；无统一综合评分；周二至周日9:00–16:30',
@@ -191,7 +191,7 @@ export const spots: Spot[] = [
   // ═══ 吃喝主推 ═══
   {
     id: 'qhd_alley', name: '秦皇小巷', category: 'food', type: '吃喝', priority: 'core',
-    address: '秦皇岛市海港区奥体街66号', lng: 119.5408, lat: 39.9051,
+    address: '秦皇岛市海港区奥体街66号', lng: 119.5623, lat: 39.9124,
     tags: ['主吃喝', '夜市', '小吃', 'City Walk'], bestTime: '傍晚/夜间',
     note: '集美食、市集、文创、演出、购物于一体的文旅美食街区，是本次吃喝主场。',
     rating: 4, ratingText: '携程相关页约4.1/5，15条点评；本地夜经济报道热度高',
@@ -203,7 +203,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'yecunli', name: '叶存利海鲜大馅饺子（海宁路总店）', category: 'food', type: '吃喝', priority: 'core',
-    address: '秦皇岛市北戴河区海宁路14号', lng: 119.5046, lat: 39.828,
+    address: '秦皇岛市北戴河区海宁路14号', lng: 119.4905, lat: 39.8209,
     tags: ['主吃喝', '海鲜饺子', '老字号'], bestTime: '午餐/晚餐',
     note: '北戴河海鲜大馅饺子的代表性店铺之一，Trip.com秦皇岛必尝美食榜第1名。',
     rating: 4, ratingText: 'Trip.com 4.3/5，85条评论；秦皇岛必尝美食榜第1名',
@@ -216,7 +216,7 @@ export const spots: Spot[] = [
   // ═══ 吃喝备选 ═══
   {
     id: 'liuzhuang', name: '刘庄夜市街', category: 'food', type: '吃喝', priority: 'backup',
-    address: '秦皇岛市北戴河区红石路刘庄北里36号附近', lng: 119.5076, lat: 39.8335,
+    address: '秦皇岛市北戴河区红石路刘庄北里36号附近', lng: 119.5054, lat: 39.8253,
     tags: ['备选', '夜市', '氛围'], bestTime: '夜间',
     note: '北戴河游客夜市，摊位、小吃、纪念品和烟火气较足。',
     rating: 3, ratingText: 'Trip.com 2.9/5，11条评价；热闹但争议较大',
@@ -228,7 +228,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'yanshan', name: '燕山大学夜市', category: 'food', type: '吃喝', priority: 'backup',
-    address: '秦皇岛市海港区山东堡路、燕山大学周边一带', lng: 119.5304, lat: 39.9123,
+    address: '秦皇岛市海港区山东堡路、燕山大学周边一带', lng: 119.5225, lat: 39.9047,
     tags: ['备选', '夜宵', '学生夜市'], bestTime: '夜间',
     note: '更偏学生区和本地夜宵氛围，适合低价小吃、烧烤、夜宵。',
     rating: 3, ratingText: '无统一综合评分；偏学生夜市/低价夜宵属性',
@@ -240,7 +240,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'yuanfu', name: '源福饭店（海鲜本地菜）', category: 'food', type: '吃喝', priority: 'backup',
-    address: '北戴河区刘庄北里/联峰路附近（以地图实时定位为准）', lng: 119.5083, lat: 39.8329,
+    address: '北戴河区刘庄北里/联峰路附近（以地图实时定位为准）', lng: 119.5054, lat: 39.8253,
     tags: ['备选', '海鲜', '餐厅'], bestTime: '午餐/晚餐',
     note: '北戴河刘庄附近海鲜/本地菜备选店，评价分歧较大，不列为必吃。',
     rating: 3, ratingText: '个体餐厅，评价分歧较大；不列为必吃',
@@ -252,7 +252,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'hongqin_qhx', name: '脸红秦田田（秦皇小巷店）', category: 'food', type: '吃喝', priority: 'backup',
-    address: '海港区奥体街66号秦皇小巷内', lng: 119.5408, lat: 39.9051,
+    address: '海港区奥体街66号秦皇小巷内', lng: 119.5623, lat: 39.9124,
     tags: ['顺路', '饮品', '本地品牌'], bestTime: '顺路',
     note: '秦皇岛本地饮品/茶饮品牌，适合逛街时顺路买。',
     rating: 3, ratingText: '本地饮品品牌，门店型点位无统一综合评分',
@@ -264,7 +264,7 @@ export const spots: Spot[] = [
   },
   {
     id: 'hongqin_lhs', name: '脸红秦田田（老虎石店）', category: 'food', type: '吃喝', priority: 'backup',
-    address: '北戴河区中海滩路老虎石附近', lng: 119.4894, lat: 39.8202,
+    address: '北戴河区中海滩路老虎石附近', lng: 119.4882, lat: 39.814,
     tags: ['顺路', '饮品'], bestTime: '顺路',
     note: '秦皇岛本地饮品品牌，靠近老虎石，顺路可买。',
     rating: 3, ratingText: '本地饮品品牌，门店型点位无统一综合评分',

@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/tencent-api/:path*",
-      "destination": "https://apis.map.qq.com/:path*"
+      "source": "/api/proxy/:path(.*)",
+      "destination": "/api/proxy?proxyPath=$1"
     },
     {
       "source": "/baidu-auth/:path*",

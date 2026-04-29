@@ -1,49 +1,74 @@
 import { Link } from 'react-router-dom'
-import { pageIntros } from '../data/pageIntros'
-import PageIntro from '../components/PageIntro'
+import { Map, Route, Bot, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-ocean-600 via-ocean-800 to-cyan-900 relative overflow-hidden">
-      <PageIntro {...pageIntros.home} />
-      {/* 装饰波浪 */}
-      <svg className="absolute bottom-0 w-full h-40 opacity-20" viewBox="0 0 1440 320" preserveAspectRatio="none">
-        <path fill="white" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,202.7C960,181,1056,139,1152,138.7C1248,139,1344,181,1392,202.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
-      </svg>
+    <section className="home-hero">
+      {/* 透明导航 */}
+      <header className="absolute top-0 left-0 right-0 z-20" style={{ background: 'rgba(255,255,255,.08)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
+        <div className="max-w-[1280px] mx-auto px-6 h-[76px] flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white text-lg shadow-md border border-white/20">
+              <Map size={18} />
+            </div>
+            <div>
+              <div className="font-bold text-sm text-white">秦皇岛双站旅行地图</div>
+              <div className="text-[10px] text-white/60">北戴河站 → 秦皇岛站</div>
+            </div>
+          </Link>
+          <nav className="flex items-center gap-2">
+            <Link to="/map" className="px-4 py-2 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">🗺️ 地图</Link>
+            <Link to="/route" className="px-4 py-2 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">🛣️ 路线</Link>
+            <Link to="/places" className="px-4 py-2 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">📍 地点</Link>
+          </nav>
+        </div>
+      </header>
 
-      <div className="relative z-10 text-center px-6 max-w-3xl">
-        <div className="text-7xl mb-6 animate-bounce">🏖️</div>
-        <h1 className="text-5xl sm:text-7xl font-extrabold text-white mb-4 drop-shadow-lg">
-          秦皇岛之旅
+      <div className="relative z-10 max-w-[1280px] mx-auto px-6 pt-[220px]">
+        {/* 上标 */}
+        <p className="text-sm font-medium tracking-widest mb-4" style={{ color: 'rgba(255,255,255,.6)' }}>北戴河站 → 秦皇岛站</p>
+
+        {/* 主标题 */}
+        <h1 className="text-6xl sm:text-7xl font-extrabold text-white mb-4 leading-tight drop-shadow-2xl">
+          秦皇岛双站旅行地图
         </h1>
-        <p className="text-xl text-ocean-200 mb-3 font-light">
-          北戴河站 → 秦皇岛站 · 21个精选吃喝玩乐点
-        </p>
-        <p className="text-ocean-300/70 text-sm mb-12">设计/制作：小光</p>
+        <p className="text-xl text-white/80 mb-2 font-light">只看这次旅行真正值得去的地方</p>
+        <p className="text-sm text-white/40 mb-12">21个精选吃喝玩乐点 · AI 智能规划 · 真实路线导航</p>
 
-        <div className="grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-10">
+        {/* CTA */}
+        <div className="flex gap-4 mb-20">
+          <Link to="/map" className="btn-primary text-white text-base no-underline">
+            立即进入 <ArrowRight size={20} />
+          </Link>
+          <Link to="/route" className="btn-glass no-underline text-base">
+            查看路线
+          </Link>
+        </div>
+
+        {/* 功能卡 */}
+        <div className="grid sm:grid-cols-3 gap-5 max-w-3xl">
           {[
-            { to: '/map', label: '🗺️ 探索地图', desc: '查看所有地点分布' },
-            { to: '/places', label: '📍 地点库', desc: '21个精选地点卡片' },
-            { to: '/ai', label: '🤖 AI规划', desc: '智能生成行程方案' },
+            { to: '/map', icon: Map, label: '探索地图', desc: '查看所有地点分布与详情' },
+            { to: '/route', icon: Route, label: '路线规划', desc: '真实路线距离与耗时估算' },
+            { to: '/ai', icon: Bot, label: 'AI 规划', desc: '智能生成专属行程方案' },
           ].map((c) => (
             <Link key={c.to} to={c.to}
-              className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white hover:bg-white/25 transition-all hover:-translate-y-1">
-              <div className="text-2xl font-bold mb-1">{c.label}</div>
-              <div className="text-white/70 text-sm">{c.desc}</div>
+              className="group rounded-2xl p-5 backdrop-blur-xl transition-all hover:-translate-y-1"
+              style={{ background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.15)' }}>
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mb-3 group-hover:bg-white/25 transition-colors">
+                <c.icon size={20} className="text-white" />
+              </div>
+              <div className="text-white font-bold text-sm mb-1">{c.label}</div>
+              <div className="text-white/60 text-xs">{c.desc}</div>
             </Link>
           ))}
         </div>
-
-        <div className="flex gap-4 justify-center">
-          <Link to="/map" className="bg-white text-ocean-700 px-10 py-4 rounded-2xl font-bold text-lg shadow-2xl hover:-translate-y-1 transition-all">
-            开始探索
-          </Link>
-          <Link to="/route" className="bg-white/20 backdrop-blur-md text-white px-10 py-4 rounded-2xl font-bold text-lg border-2 border-white/30 hover:bg-white/30 transition-all">
-            规划路线
-          </Link>
-        </div>
       </div>
-    </div>
+
+      {/* 署名 */}
+      <div className="absolute bottom-6 left-0 right-0 text-center z-10">
+        <span className="text-xs" style={{ color: 'rgba(255,255,255,.3)' }}>小光出品 / 设计制作：小光</span>
+      </div>
+    </section>
   )
 }

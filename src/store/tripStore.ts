@@ -13,6 +13,8 @@ function getSessionId(): string {
   return id
 }
 
+const CUSTOM_SPOTS_KEY = 'qhd_custom_spots'
+
 interface TripStore {
   selected: Spot | null
   wishlist: string[]
@@ -35,6 +37,7 @@ interface TripStore {
   patchSettings: (p: Partial<AppSettings>) => void
   loadData: () => Promise<void>
   persistWishlist: () => Promise<void>
+  addCustomSpot: (spot: Spot) => void
 }
 
 export const useTripStore = create<TripStore>((set, get) => ({
@@ -95,14 +98,23 @@ export const useTripStore = create<TripStore>((set, get) => ({
         fetchPitfalls(),
         fetchWishlist(getSessionId()),
       ])
+      let baseSpots: Spot[]
+      if (supabaseSpots.length > 0) {
+        baseSpots = supabaseSpots.map((s: Spot) => {
+          const fb = fallbackSpots.find((f) => f.id === s.id)
+          if (!fb) return s
+          return { ...fb, ...s, imageUrl: s.imageUrl || fb.imageUrl || '', intro: s.intro || fb.intro || '', recommendation: s.recommendation || fb.recommendation || '', caution: s.caution || fb.caution || '', ratingText: s.ratingText || fb.ratingText || '', keywords: s.keywords?.length ? s.keywords : (fb.keywords ?? []) }
+        })
+      } else {
+        baseSpots = fallbackSpots
+      }
+      // 合并用户自建地点
+      try {
+        const custom: Spot[] = JSON.parse(localStorage.getItem(CUSTOM_SPOTS_KEY) || '[]')
+        if (custom.length) baseSpots = [...baseSpots, ...custom]
+      } catch {}
       set({
-        spots: supabaseSpots.length > 0
-          ? supabaseSpots.map((s: Spot) => {
-              const fb = fallbackSpots.find((f) => f.id === s.id)
-              if (!fb) return s
-              return { ...fb, ...s, imageUrl: s.imageUrl || fb.imageUrl || '', intro: s.intro || fb.intro || '', recommendation: s.recommendation || fb.recommendation || '', caution: s.caution || fb.caution || '', ratingText: s.ratingText || fb.ratingText || '', keywords: s.keywords?.length ? s.keywords : (fb.keywords ?? []) }
-            })
-          : fallbackSpots,
+        spots: baseSpots,
         pitfalls: supabasePitfalls.length > 0 ? supabasePitfalls : fallbackPitfalls,
         wishlist,
         dataLoaded: true,
@@ -116,5 +128,14 @@ export const useTripStore = create<TripStore>((set, get) => ({
     try {
       await saveWishlist(getSessionId(), get().wishlist)
     } catch {}
+  },
+
+  addCustomSpot: (spot: Spot) => {
+    set((state) => {
+      const existing: Spot[] = JSON.parse(localStorage.getItem(CUSTOM_SPOTS_KEY) || '[]')
+      existing.push(spot)
+      localStorage.setItem(CUSTOM_SPOTS_KEY, JSON.stringify(existing))
+      return { spots: [...state.spots, spot] }
+    })
   },
 }))

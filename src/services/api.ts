@@ -21,9 +21,9 @@ export function loadTMap(): Promise<void> {
 // ------ 腾讯地图 WebService API ------
 
 // 本地开发用 Vite proxy 避免 CORS，生产环境需部署到同域或服务端代理
-const WS_BASE = '/tencent-api'
+const WS_BASE = '/api/proxy'
 
-/** 地点自动补全 */
+/** 地点自动补全（限制在秦皇岛区域） */
 export async function suggestPlaces(keyword: string, region = '秦皇岛'): Promise<Array<{
   title: string
   address: string
@@ -31,7 +31,7 @@ export async function suggestPlaces(keyword: string, region = '秦皇岛'): Prom
   location: { lat: number; lng: number }
 }>> {
   if (!keyword.trim()) return []
-  const url = `${WS_BASE}/ws/place/v1/suggestion/?keyword=${encodeURIComponent(keyword)}&region=${encodeURIComponent(region)}&key=${TENCENT_KEY}`
+  const url = `${WS_BASE}/ws/place/v1/suggestion/?keyword=${encodeURIComponent(keyword)}&region=${encodeURIComponent(region)}&region_fix=1&key=${TENCENT_KEY}`
   try {
     const res = await fetch(url)
     const data = await res.json()
@@ -80,22 +80,30 @@ export interface LocationResult {
 /** 获取用户真实位置（优先浏览器 GPS/WiFi，降级 IP 定位） */
 export async function getUserLocation(): Promise<LocationResult | null> {
   if (navigator.geolocation) {
+    // 先试高精度 GPS（长时间等待获取卫星锁定）
     try {
       const pos = await new Promise<GeolocationPosition>((ok, fail) => {
-        navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 })
+        navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
+      })
+      const acc = Math.round(pos.coords.accuracy)
+      // 精度 ≤ 100m 直接返回；较差精度则等第二次尝试
+      if (acc <= 100) return { lat: pos.coords.latitude, lng: pos.coords.longitude, city: '', accuracy: acc }
+    } catch {}
+    // 降级：非高精度但更快获取
+    try {
+      const pos = await new Promise<GeolocationPosition>((ok, fail) => {
+        navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: false, timeout: 8000 })
       })
       return {
         lat: pos.coords.latitude, lng: pos.coords.longitude, city: '',
         accuracy: Math.round(pos.coords.accuracy),
       }
-    } catch {
-      return getIpLocation()
-    }
+    } catch {}
   }
   return getIpLocation()
 }
 
-/** 持续跟踪位置（用作导航式体验），返回取消函数 */
+/** 持续跟踪位置（最高精度导航），返回取消函数 */
 export function watchUserLocation(
   onUpdate: (loc: LocationResult) => void,
   onError?: () => void,
@@ -107,7 +115,7 @@ export function watchUserLocation(
       accuracy: Math.round(pos.coords.accuracy),
     }),
     () => onError?.(),
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
   )
   return () => navigator.geolocation.clearWatch(id)
 }

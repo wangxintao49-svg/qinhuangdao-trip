@@ -2,7 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-body { margin: 0; min-height: 100vh; }
+:root {
+  --qhd-navy: #062B55;
+  --qhd-blue: #0B5CAD;
+  --qhd-cyan: #10B8C9;
+  --qhd-sun: #FF8A3D;
+  --qhd-gold: #F2C46D;
+  --qhd-cream: #F8F5EE;
+  --qhd-ice: #EEF8FB;
+  --qhd-text: #17212B;
+  --qhd-muted: #6B7C8F;
+  --qhd-danger: #E84A5F;
+  --qhd-card: rgba(255,255,255,.78);
+  --qhd-shadow-soft: 0 18px 45px rgba(6,43,85,.12);
+  --qhd-shadow-card: 0 12px 28px rgba(6,43,85,.10);
+  --qhd-radius-xl: 28px;
+  --qhd-radius-lg: 20px;
+  --qhd-radius-md: 14px;
+}
+
+body { margin: 0; min-height: 100vh; font-family: "PingFang SC","Microsoft YaHei",system-ui,sans-serif; color: var(--qhd-text); background: linear-gradient(180deg,#F6FBFD 0%,#EEF8FB 100%); }
 
 @layer components {
   .card {
@@ -24,4 +43,33 @@ body { margin: 0; min-height: 100vh; }
   .chip-green { @apply chip bg-emerald-100 text-emerald-700; }
   .chip-yellow { @apply chip bg-yellow-100 text-yellow-700; }
   .chip-red { @apply chip bg-red-100 text-red-700; }
+  .btn-primary {
+    height: 56px; padding: 0 28px; border-radius: 18px; color: #fff; font-weight: 700;
+    background: linear-gradient(135deg, #062B55 0%, #0B5CAD 55%, #10B8C9 100%);
+    box-shadow: 0 16px 34px rgba(11,92,173,.28);
+    transition: transform .18s ease, box-shadow .18s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 22px 44px rgba(11,92,173,.34); }
+  .btn-glass {
+    height: 56px; padding: 0 28px; border-radius: 18px; color: var(--qhd-navy); font-weight: 600;
+    background: rgba(255,255,255,.74);
+    border: 1px solid rgba(255,255,255,.72);
+    backdrop-filter: blur(16px);
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform .18s ease;
+  }
+  .btn-glass:hover { transform: translateY(-2px); }
+}
+
+.home-hero {
+  position: relative; min-height: 100vh; overflow: hidden;
+  background-image: linear-gradient(90deg, rgba(3,22,45,.72) 0%, rgba(6,43,85,.48) 38%, rgba(6,43,85,.18) 68%, rgba(255,138,61,.10) 100%), url('/images/qhd-hero-bg.png');
+  background-size: cover; background-position: center center;
+}
+.home-hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 180px;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(248,245,238,.92) 100%);
+  pointer-events: none;
 }

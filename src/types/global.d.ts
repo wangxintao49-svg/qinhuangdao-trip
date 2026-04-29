@@ -5,13 +5,39 @@ declare namespace TMap {
       center: LatLng
       zoom: number
       mapStyleId?: string
+      baseMap?: { type: string; features?: string[] }
     })
     setCenter(center: LatLng): void
     setZoom(zoom: number): void
     fitBounds(bounds: LatLngBounds): void
+    project(pos: LatLng): { x: number; y: number }
+    on(event: string, fn: () => void): void
+    off(event: string, fn: () => void): void
+    getCenter(): LatLng
+    getZoom(): number
   }
   class LatLng {
     constructor(lat: number, lng: number)
+  }
+  class DOMOverlay {
+    constructor(opts: { map: Map; position: LatLng; content: string | HTMLElement; offset?: { x: number; y: number } })
+    destroy(): void
+    setMap(map: Map | null): void
+    setPosition(pos: LatLng): void
+    setContent(content: string | HTMLElement): void
+    on(event: string, fn: (e: any) => void): void
+  }
+  class CircleStyle {
+    constructor(opts: { color: string; strokeColor: string; strokeWidth: number; opacity: number })
+  }
+  class MultiCircle {
+    constructor(opts: { map: Map; styles: Record<string, CircleStyle>; geometries: Array<{ styleId: string; center: LatLng; radius: number }> })
+    setMap(map: Map | null): void
+    setGeometries(geos: Array<{ styleId: string; center: LatLng; radius: number }>): void
+  }
+  class TrafficLayer {
+    constructor(opts: { map: Map })
+    setMap(map: Map | null): void
   }
   class LatLngBounds {
     extend(pos: LatLng): void
@@ -24,6 +50,21 @@ declare namespace TMap {
     constructor(opts: { map: Map; styles: Record<string, MarkerStyle>; geometries: unknown[] })
     on(event: string, fn: (e: { geometry: { id: string } }) => void): void
     setMap(map: Map | null): void
+  }
+  class LabelStyle {
+    constructor(opts: {
+      color?: string; size?: number; backgroundColor?: string; borderRadius?: number
+      borderColor?: string; borderWidth?: number; padding?: string; opacity?: number
+    })
+  }
+  class MultiLabel {
+    constructor(opts: { map: Map; styles: Record<string, LabelStyle>; geometries: unknown[] })
+    setMap(map: Map | null): void
+  }
+  class InfoWindow {
+    constructor(opts: { map: Map; position: LatLng; content: string; offset: { x: number; y: number }; closeWhenOtherOpen?: boolean })
+    destroy(): void
+    close(): void
   }
   class PolylineStyle {
     constructor(opts: { color: string; width: number; borderWidth?: number; borderColor?: string })

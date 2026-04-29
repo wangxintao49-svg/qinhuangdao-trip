@@ -56,3 +56,23 @@ export interface AppSettings {
   useAI: boolean
   useLocation: boolean
 }
+
+/** 多日行程中的一天 */
+export interface DayPlan {
+  id: string
+  label: string
+  items: DayItem[]
+}
+
+/** 一天的某个地点 */
+export interface DayItem {
+  spotId: string
+  arrivalTime?: string
+}
+
+/** 每段出行方式 */
+export interface SegmentMode {
+  fromId: string
+  toId: string
+  mode: TravelMode
+}

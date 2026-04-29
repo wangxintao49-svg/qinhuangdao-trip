@@ -41,7 +41,6 @@ jobs:
 
       - name: Generate Android project
         run: |
-          npx cap init 秦皇岛之旅 com.qinhuangdao.trip --webDir dist
           npx cap add android
           npx cap sync
 

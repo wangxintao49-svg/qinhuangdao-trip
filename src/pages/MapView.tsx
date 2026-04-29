@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTripStore } from '../store/tripStore'
 import type { PlaceCategory, Spot } from '../types'
 import { loadTMap, suggestPlaces, searchNearby, getUserLocation, watchUserLocation } from '../services/api'
+import { imgUrl } from '../utils/assets'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
 import { getMarkerIcon, getHouseIcon, getMarkerColor } from '../utils/icons'
@@ -308,7 +309,7 @@ export default function MapView() {
         <div className="card p-6 mt-6">
           {selected.imageUrl && (
             <div className="h-48 rounded-xl overflow-hidden bg-gray-100 mb-4">
-              <img src={selected.imageUrl} alt={selected.name} className="w-full h-full object-cover" />
+              <img src={imgUrl(selected.imageUrl)} alt={selected.name} className="w-full h-full object-cover" />
             </div>
           )}
           <div className="flex items-center gap-4 mb-4">

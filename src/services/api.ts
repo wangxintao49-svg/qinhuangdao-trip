@@ -156,67 +156,63 @@ export interface DirectionSegment {
   steps?: any[]          // 公交专用
 }
 
-/** 路线规划（无 CORS 限制，支持静态部署） */
+/* 路线规划 - 按优先级尝试多种方式：
+   1. TMap.service.Direction（新版 SDK）
+   2. TMap.services.Direction（旧版 SDK）
+   3. REST API 直连（EXE/APK 下 CORS 已放开）
+   4. 返回 null 由调用方用 Haversine 降级
+*/
 export async function fetchDirection(
   from: { lat: number; lng: number },
   to: { lat: number; lng: number },
   mode: 'driving' | 'walking' | 'bicycling' | 'transit',
 ): Promise<{ data: DirectionSegment | null; error?: string }> {
-  // 兼容新旧两套 API
+  // 尝试 SDK 方式
   const DirClass = (window.TMap as any)?.service?.Direction || (window.TMap as any)?.services?.Direction
-  const useNewApi = DirClass && DirClass === (window.TMap as any)?.service?.Direction
-  if (!DirClass) return { data: null, error: 'SDK not ready' }
+  if (DirClass) {
+    const useNewApi = DirClass === (window.TMap as any)?.service?.Direction
 
-  function normalize(route: any): DirectionSegment {
-    const durationMin = route.duration >= 86400 ? route.duration / 60 : route.duration
-    return {
-      distance: route.distance,
-      duration: Math.round(durationMin),
-      polyline: normalizePolyline(route.polyline),
-      price: route.price,
-      steps: route.steps,
+    function normalize(route: any): DirectionSegment {
+      const durationMin = route.duration >= 86400 ? route.duration / 60 : route.duration
+      return { distance: route.distance, duration: Math.round(durationMin), polyline: normalizePolyline(route.polyline), price: route.price, steps: route.steps }
     }
-  }
 
-  try {
-    if (useNewApi) {
-      // 新 API：Promise 式（drive / walk / bike / transit）
-      const svc = new DirClass()
-      const params: any = {
-        from: new window.TMap.LatLng(from.lat, from.lng),
-        to: new window.TMap.LatLng(to.lat, to.lng),
-      }
-      if (mode === 'driving') params.policy = 'LEAST_TIME'
-      const method = mode === 'driving' ? 'drive' : mode === 'walking' ? 'walk' : mode === 'bicycling' ? 'bike' : 'transit'
-      const result = await svc[method](params)
-      if (result.status === 0 && result.result?.routes?.length) {
-        return { data: normalize(result.result.routes[0]) }
-      }
-      return { data: null, error: (result as any).message || 'no route' }
-    } else {
-      // 旧 API：回调式 request()
-      const modeMap: Record<string, string> = { driving: 'driving', walking: 'walking', bicycling: 'bicycling', transit: 'transit' }
-      return new Promise((resolve) => {
+    try {
+      if (useNewApi) {
         const svc = new DirClass()
-        svc.request({
-          from: new window.TMap.LatLng(from.lat, from.lng),
-          to: new window.TMap.LatLng(to.lat, to.lng),
-          mode: modeMap[mode] || 'driving',
-          policy: mode === 'driving' ? 'LEAST_TIME' : undefined,
-          success: (res: any) => {
-            if (res.status === 0 && res.result?.routes?.length) {
-              resolve({ data: normalize(res.result.routes[0]) })
-            } else {
-              resolve({ data: null, error: res.message || 'no route' })
-            }
-          },
-          fail: (err: Error) => resolve({ data: null, error: err.message }),
+        const params: any = { from: new window.TMap.LatLng(from.lat, from.lng), to: new window.TMap.LatLng(to.lat, to.lng) }
+        if (mode === 'driving') params.policy = 'LEAST_TIME'
+        const method = mode === 'driving' ? 'drive' : mode === 'walking' ? 'walk' : mode === 'bicycling' ? 'bike' : 'transit'
+        const result = await svc[method](params)
+        if (result.status === 0 && result.result?.routes?.length) return { data: normalize(result.result.routes[0]) }
+        return { data: null, error: (result as any).message || 'no route' }
+      } else {
+        const modeMap: Record<string, string> = { driving: 'driving', walking: 'walking', bicycling: 'bicycling', transit: 'transit' }
+        return new Promise((resolve) => {
+          const svc = new DirClass()
+          svc.request({
+            from: new window.TMap.LatLng(from.lat, from.lng), to: new window.TMap.LatLng(to.lat, to.lng),
+            mode: modeMap[mode] || 'driving', policy: mode === 'driving' ? 'LEAST_TIME' : undefined,
+            success: (res: any) => res.status === 0 && res.result?.routes?.length ? resolve({ data: normalize(res.result.routes[0]) }) : resolve({ data: null, error: res.message || 'no route' }),
+            fail: (err: Error) => resolve({ data: null, error: err.message }),
+          })
         })
-      })
-    }
-  } catch (e: any) {
-    return { data: null, error: e.message }
+      }
+    } catch (e: any) { /* fall through to REST API */ }
   }
+
+  // 兜底：直接调用 REST API（EXE/APK 下 CORS 已开放，浏览器会因 CORS 失败会自动走 Haversine 降级）
+  try {
+    const modePath = mode === 'walking' ? 'walking' : mode === 'bicycling' ? 'bicycling' : mode === 'transit' ? 'transit' : 'driving'
+    const res = await fetch(`https://apis.map.qq.com/ws/direction/v1/${modePath}/?from=${from.lat},${from.lng}&to=${to.lat},${to.lng}&key=${TENCENT_KEY}`)
+    const data = await res.json()
+    if (data.status === 0 && data.result?.routes?.length) {
+      const r = data.result.routes[0]
+      return { data: { distance: r.distance, duration: Math.round(r.duration), polyline: normalizePolyline(r.polyline), price: r.price, steps: r.steps } }
+    }
+  } catch { /* Haversine fallback handled by caller */ }
+
+  return { data: null, error: 'SDK not available' }
 }
 
 // ------ DeepSeek AI ------

@@ -4,6 +4,7 @@ import { useTripStore } from '../store/tripStore'
 import { suggestPlaces } from '../services/api'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
+import { imgUrl } from '../utils/assets'
 
 const iconMap: Record<string, string> = { station: '🚉', play: '🎯', food: '🍽️', rainy: '🏛️' }
 
@@ -65,7 +66,7 @@ export default function PlaceGallery() {
           <div key={s.id} className="card overflow-hidden hover:shadow-xl transition-shadow">
             {s.imageUrl && (
               <div className="h-40 overflow-hidden bg-gray-100">
-                <img src={s.imageUrl} alt={s.name} className="w-full h-full object-cover" loading="lazy" />
+                <img src={imgUrl(s.imageUrl)} alt={s.name} className="w-full h-full object-cover" loading="lazy" />
               </div>
             )}
             <div className={s.imageUrl ? 'p-4' : 'p-5'}>

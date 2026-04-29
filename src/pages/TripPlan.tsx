@@ -4,6 +4,7 @@ import { haversineDist, estDriveTime, estTaxiFare, estWalkTime, estRideTime, est
 import { loadTMap, getUserLocation, watchUserLocation, fetchDirection } from '../services/api'
 import { pageIntros } from '../data/pageIntros'
 import PageIntro from '../components/PageIntro'
+import { imgUrl } from '../utils/assets'
 import { getHouseIcon } from '../utils/icons'
 import type { TravelMode, DayPlan, Spot } from '../types'
 import html2canvas from 'html2canvas'
@@ -731,7 +732,7 @@ export default function TripPlan() {
                                 {/* 图片 */}
                                 {spot.imageUrl ? (
                                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                                    <img src={spot.imageUrl} alt={spot.name}
+                                    <img src={imgUrl(spot.imageUrl)} alt={spot.name}
                                       className="w-full h-full object-cover"
                                       loading="lazy" />
                                   </div>
@@ -907,7 +908,7 @@ export default function TripPlan() {
                   className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-ocean-50 transition-colors">
                   {s.imageUrl ? (
                     <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                      <img src={s.imageUrl} alt={s.name} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={imgUrl(s.imageUrl)} alt={s.name} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-ocean-50 flex items-center justify-center text-lg flex-shrink-0">

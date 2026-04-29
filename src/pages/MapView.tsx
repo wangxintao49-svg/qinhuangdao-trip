@@ -35,6 +35,7 @@ export default function MapView() {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
   const markerRef = useRef<any>(null)
+  const labelRef = useRef<any>(null)
   const userMarkerRef = useRef<any>(null)
   const trafficRef = useRef<any>(null)
   const initCalled = useRef(false)
@@ -122,6 +123,7 @@ export default function MapView() {
     const map = mapRef.current
     if (!map || !ready) return
     if (markerRef.current) { markerRef.current.setMap(null); markerRef.current = null }
+    if (labelRef.current) { labelRef.current.setMap(null); labelRef.current = null }
     const data = list.map((s) => ({
       id: s.id, styleId: s.category,
       position: new window.TMap.LatLng(s.lat, s.lng),
@@ -134,14 +136,29 @@ export default function MapView() {
       styles[c] = new window.TMap.MarkerStyle({
         width: 38, height: 38,
         anchor: { x: 19, y: 19 },
-        color: getMarkerColor(c),     // 颜色回退
-        ...(iconUrl ? { icon: iconUrl } : {}), // 自定义图标优先
+        color: getMarkerColor(c),
+        ...(iconUrl ? { icon: iconUrl } : {}),
       })
     }
     try {
       const mm = new window.TMap.MultiMarker({ map, styles, geometries: data })
       mm.on('click', (e: any) => { const p = spots.find((s) => s.id === e.geometry?.id); if (p) { setSelected(p); setNearby([]) } })
       markerRef.current = mm
+    } catch {}
+
+    // 地点名称标签
+    try {
+      const labelStyle = new window.TMap.LabelStyle({
+        color: '#062B55', size: 12, backgroundColor: 'rgba(255,255,255,.88)',
+        borderColor: 'rgba(6,43,85,.12)', borderWidth: 1, padding: '4px 8px', borderRadius: 8, opacity: 1,
+      })
+      const labelData = list.map((s) => ({
+        id: s.id, styleId: 'l',
+        position: new window.TMap.LatLng(s.lat, s.lng),
+        content: s.name,
+        offset: { x: 0, y: -28 },
+      }))
+      labelRef.current = new window.TMap.MultiLabel({ map, styles: { l: labelStyle }, geometries: labelData })
     } catch {}
   }, [list, ready, setSelected])
 

@@ -21,7 +21,9 @@ export function loadTMap(): Promise<void> {
 // ------ 腾讯地图 WebService API ------
 
 // 本地开发用 Vite proxy 避免 CORS，生产环境需部署到同域或服务端代理
-const WS_BASE = '/api/proxy'
+// Capacitor 模式下直接调用腾讯地图 API（WebView 已配置通用访问权限）
+const isWebView = typeof (window as any).Capacitor?.isNative === 'function' && (window as any).Capacitor.isNative()
+const WS_BASE = isWebView ? 'https://apis.map.qq.com' : '/api/proxy'
 
 /** 地点自动补全（限制在秦皇岛区域） */
 export async function suggestPlaces(keyword: string, region = '秦皇岛'): Promise<Array<{

@@ -32,3 +32,12 @@ dist-ssr
 .vercel
 .vercel-data
 .tmp
+
+# Build output
+release*/
+release-*/
+D:/exe-output/
+D:/qhd-exe/
+D:/portable-out/
+D:/.electron-cache/
+D:/.electron-builder-cache/

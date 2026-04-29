@@ -1,0 +1,72 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Build web app
+        run: npm run build
+        env:
+          VITE_TENCENT_KEY: ${{ secrets.VITE_TENCENT_KEY }}
+          VITE_DEEPSEEK_KEY: ${{ secrets.VITE_DEEPSEEK_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_BAIDU_TTS_KEY: ${{ secrets.VITE_BAIDU_TTS_KEY }}
+          VITE_BAIDU_TTS_SECRET: ${{ secrets.VITE_BAIDU_TTS_SECRET }}
+
+      - name: Generate Android project
+        run: |
+          npx cap init 秦皇岛之旅 com.qinhuangdao.trip --webDir dist
+          npx cap add android
+          npx cap sync
+
+      - name: Enable CORS for WebView
+        run: |
+          FILE="android/app/src/main/java/com/qinhuangdao/trip/MainActivity.java"
+          echo "=== Before ==="
+          cat "$FILE"
+          # Add imports
+          sed -i 's/import com.getcapacitor.BridgeActivity;/import com.getcapacitor.BridgeActivity;\nimport android.webkit.WebView;\nimport android.os.Bundle;/' "$FILE"
+          # Add CORS bypass in onCreate
+          sed -i 's/public class MainActivity extends BridgeActivity {/public class MainActivity extends BridgeActivity {\n    @Override\n    public void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        WebView wv = (WebView) getBridge().getWebView();\n        if (wv != null) {\n            wv.getSettings().setAllowUniversalAccessFromFileURLs(true);\n            wv.getSettings().setAllowFileAccessFromFileURLs(true);\n        }\n    }/' "$FILE"
+          echo "=== After ==="
+          cat "$FILE"
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk 秦皇岛之旅.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 秦皇岛之旅-APK
+          path: 秦皇岛之旅.apk

@@ -1,5 +1,6 @@
 {
   "name": "-",
+  "main": "electron/main.cjs",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +9,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node server.js"
+    "start": "node server.js",
+    "electron:dev": "NODE_ENV=development electron electron/main.cjs",
+    "electron:build": "vite build && electron-builder --win portable"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
@@ -27,6 +30,9 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
+    "electron": "^35.7.5",
+    "electron-builder": "^26.8.1",
+    "electron-packager": "^17.1.2",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -36,5 +42,27 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.10"
+  },
+  "build": {
+    "appId": "com.qinhuangdao.trip",
+    "productName": "秦皇岛之旅",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "icons/icon.png",
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "秦皇岛之旅.exe"
+    },
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    }
   }
 }

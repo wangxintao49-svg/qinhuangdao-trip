@@ -11,7 +11,7 @@ export function loadTMap(): Promise<void> {
   if (window.TMap) return Promise.resolve()
   return new Promise((ok, fail) => {
     const el = document.createElement('script')
-    el.src = `https://map.qq.com/api/gljs?v=2.exp&key=${TENCENT_KEY}`
+    el.src = `https://map.qq.com/api/gljs?v=2.exp&key=${TENCENT_KEY}&libraries=service`
     el.async = true
     el.onload = () => setTimeout(() => window.TMap ? ok() : fail(Error('TMap 未定义')), 500)
     el.onerror = () => fail(Error('腾讯地图 SDK 加载失败'))

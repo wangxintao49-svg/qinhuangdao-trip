@@ -162,34 +162,58 @@ export async function fetchDirection(
   to: { lat: number; lng: number },
   mode: 'driving' | 'walking' | 'bicycling' | 'transit',
 ): Promise<{ data: DirectionSegment | null; error?: string }> {
+  // 兼容新旧两套 API
+  const DirClass = (window.TMap as any)?.service?.Direction || (window.TMap as any)?.services?.Direction
+  const useNewApi = DirClass && DirClass === (window.TMap as any)?.service?.Direction
+  if (!DirClass) return { data: null, error: 'SDK not ready' }
+
+  function normalize(route: any): DirectionSegment {
+    const durationMin = route.duration >= 86400 ? route.duration / 60 : route.duration
+    return {
+      distance: route.distance,
+      duration: Math.round(durationMin),
+      polyline: normalizePolyline(route.polyline),
+      price: route.price,
+      steps: route.steps,
+    }
+  }
+
   try {
-    if (!window.TMap?.service?.Direction) return { data: null, error: 'SDK not ready' }
-
-    const svc = new window.TMap.service.Direction()
-    const params: any = {
-      from: new window.TMap.LatLng(from.lat, from.lng),
-      to: new window.TMap.LatLng(to.lat, to.lng),
-    }
-    if (mode === 'driving') params.policy = 'LEAST_TIME'
-
-    const method = mode === 'driving' ? 'drive' : mode === 'walking' ? 'walk' : mode === 'bicycling' ? 'bike' : 'transit'
-    const result = await svc[method](params)
-
-    if (result.status === 0 && result.result?.routes?.length) {
-      const route = result.result.routes[0]
-      // SDK 返回的 duration 是秒，统一转为分钟
-      const durationMin = route.duration >= 86400 ? route.duration / 60 : route.duration
-      return {
-        data: {
-          distance: route.distance,
-          duration: Math.round(durationMin),
-          polyline: normalizePolyline(route.polyline),
-          price: route.price,
-          steps: route.steps,
-        },
+    if (useNewApi) {
+      // 新 API：Promise 式（drive / walk / bike / transit）
+      const svc = new DirClass()
+      const params: any = {
+        from: new window.TMap.LatLng(from.lat, from.lng),
+        to: new window.TMap.LatLng(to.lat, to.lng),
       }
+      if (mode === 'driving') params.policy = 'LEAST_TIME'
+      const method = mode === 'driving' ? 'drive' : mode === 'walking' ? 'walk' : mode === 'bicycling' ? 'bike' : 'transit'
+      const result = await svc[method](params)
+      if (result.status === 0 && result.result?.routes?.length) {
+        return { data: normalize(result.result.routes[0]) }
+      }
+      return { data: null, error: (result as any).message || 'no route' }
+    } else {
+      // 旧 API：回调式 request()
+      const modeMap: Record<string, string> = { driving: 'driving', walking: 'walking', bicycling: 'bicycling', transit: 'transit' }
+      return new Promise((resolve) => {
+        const svc = new DirClass()
+        svc.request({
+          from: new window.TMap.LatLng(from.lat, from.lng),
+          to: new window.TMap.LatLng(to.lat, to.lng),
+          mode: modeMap[mode] || 'driving',
+          policy: mode === 'driving' ? 'LEAST_TIME' : undefined,
+          success: (res: any) => {
+            if (res.status === 0 && res.result?.routes?.length) {
+              resolve({ data: normalize(res.result.routes[0]) })
+            } else {
+              resolve({ data: null, error: res.message || 'no route' })
+            }
+          },
+          fail: (err: Error) => resolve({ data: null, error: err.message }),
+        })
+      })
     }
-    return { data: null, error: (result as any).message || 'no route' }
   } catch (e: any) {
     return { data: null, error: e.message }
   }

@@ -189,7 +189,7 @@ export async function fetchDirection(
         },
       }
     }
-    return { data: null, error: result.message || 'no route' }
+    return { data: null, error: (result as any).message || 'no route' }
   } catch (e: any) {
     return { data: null, error: e.message }
   }

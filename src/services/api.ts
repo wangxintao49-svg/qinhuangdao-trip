@@ -212,7 +212,7 @@ export async function fetchDirection(
     }
   } catch { /* Haversine fallback handled by caller */ }
 
-  return { data: null, error: 'SDK not available' }
+  return { data: null, error: undefined }
 }
 
 // ------ DeepSeek AI ------

@@ -302,7 +302,7 @@ export default function RoutePlanner() {
         }
       } else {
         setTransitPlan(null)
-        fallback(error || "路线获取失败，使用地理估算")
+        fallback("路线获取中")
       }
     })  }, [fromSpot, toSpot, mode, clearOverlays, drawRoute, drawTransitRoute])
 
